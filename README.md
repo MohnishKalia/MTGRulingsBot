@@ -9,17 +9,19 @@ This bot fetches and displays rulings for Magic: The Gathering cards, helping pl
 ## Data Sources
 
 - Scryfall oracle cards
+    - https://scryfall.com/docs/api/bulk-data
 - Scryfall card rulings
+    - https://scryfall.com/docs/api/bulk-data
 - Magic comprehensive rules
+    - https://magic.wizards.com/en/rules
 - (?)Rulings forums/databases for historical precedent
 
 ## Roadmap
 
-- [ ] Implement basic card lookup
-- [ ] Add support for fetching rulings
-- [ ] Improve response formatting
-- [ ] Add support for multiple languages
-- [ ] Integrate with popular messaging platforms
+- [ ] Implement vector db with search on the comprules
+- [ ] Build text box input classifier to pick out card names from a sample user query
+- [ ] Function to get oracle text of a card(s)
+- [ ] Function to get rulings of a card(s)
 
 ## Quickstart
 
