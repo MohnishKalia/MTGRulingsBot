@@ -18,6 +18,10 @@
 # production
 /build
 
+# seo files
+sitemap*.xml
+robots.txt
+
 # misc
 .DS_Store
 *.pem
