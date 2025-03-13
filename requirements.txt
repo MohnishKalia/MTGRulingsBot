@@ -1,1 +1,7 @@
 Flask==3.0.3
+numpy
+upstash_vector
+python-dotenv
+psycopg2-binary
+pydantic
+requests
