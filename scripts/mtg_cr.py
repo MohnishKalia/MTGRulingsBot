@@ -18,7 +18,7 @@ This script assumes:
 - no major layout shifts in the document (*_end_marker)
 """
 
-dotenv.load_dotenv()
+dotenv.load_dotenv('.env.local')
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')

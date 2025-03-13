@@ -1,5 +1,7 @@
 Flask==3.0.3
 numpy
 upstash_vector
-dotenv
+python-dotenv
 psycopg2-binary
+pydantic
+requests
