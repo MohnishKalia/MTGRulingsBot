@@ -91,11 +91,7 @@ logging.info(f"Rulings count: {len(rulings)}")
 # upload to postgres
 
 # Fetch variables
-PG_USER = os.getenv("SB_POOL_PGUSER")
-PG_PASSWORD = os.getenv("SB_POOL_PGPASSWORD")
-PG_HOST = os.getenv("SB_POOL_PGHOST")
-PG_PORT = os.getenv("SB_POOL_PGPORT")
-PG_DBNAME = os.getenv("SB_POOL_PGDATABASE")
+DB_URL = os.getenv("DATABASE_URL")
 
 oracle_card_table_def= """
 CREATE TABLE IF NOT EXISTS oracle_card (
@@ -127,13 +123,7 @@ CREATE TABLE IF NOT EXISTS ruling (
 );"""
 
 # Connect to the database
-with psycopg2.connect(
-    user=PG_USER,
-    password=PG_PASSWORD,
-    host=PG_HOST,
-    port=PG_PORT,
-    dbname=PG_DBNAME
-) as conn, conn.cursor() as cur:
+with psycopg2.connect(DB_URL) as conn, conn.cursor() as cur:
     # Check connection
     logging.info("Connection successful!")
     cur.execute("SELECT NOW();")
