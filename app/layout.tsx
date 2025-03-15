@@ -3,7 +3,8 @@ import { Toaster } from 'sonner';
 
 import { ThemeProvider } from '@/components/theme-provider';
 
-import { Analytics } from "@vercel/analytics/react"
+import { Analytics } from "@vercel/analytics/next"
+import { SpeedInsights } from "@vercel/speed-insights/next"
 
 import './globals.css';
 
@@ -26,7 +27,9 @@ export const metadata: Metadata = {
       {
         url: "https://rules.fyi/logo.svg",
         type: "image/svg+xml",
-        alt: "mohnishkalia"
+        alt: "mohnishkalia",
+        height: 630,
+        width: 1200
       }
     ]
   },
@@ -116,6 +119,7 @@ export default async function RootLayout({
           {children}
         </ThemeProvider>
         <Analytics/>
+        <SpeedInsights/>
       </body>
     </html>
   );
