@@ -1,9 +1,12 @@
 import { motion } from 'framer-motion';
 import Link from 'next/link';
-
-import { MessageIcon, VercelIcon } from './icons';
+import useSWR from 'swr';
+import { fetcher } from '@/lib/utils';
+import { BotIcon, Layers3Icon, ScrollIcon } from 'lucide-react';
 
 export const Overview = () => {
+  const { data, error, isLoading } = useSWR('/api/dbStats', fetcher);
+
   return (
     <motion.div
       key="overview"
@@ -15,37 +18,48 @@ export const Overview = () => {
     >
       <div className="rounded-xl p-6 flex flex-col gap-8 leading-relaxed text-center max-w-xl">
         <p className="flex flex-row justify-center gap-4 items-center">
-          <VercelIcon size={32} />
+          <BotIcon size={32} />
           <span>+</span>
-          <MessageIcon size={32} />
+          <ScrollIcon size={32} />
+          <span>+</span>
+          <Layers3Icon size={32} />
         </p>
-        <p>
-          This is an{' '}
-          <Link
-            className="font-medium underline underline-offset-4"
-            href="https://github.com/vercel/ai-chatbot"
-            target="_blank"
-          >
-            open source
+        <p className="text-lg font-medium text-center">
+          <span className="font-bold text-xl">rules.fyi</span> is the chatbot for{' '}
+          <Link href="https://magic.wizards.com" target="_blank" rel="noopener noreferrer" className="font-medium underline underline-offset-4">
+            Magic: The Gathering
           </Link>{' '}
-          chatbot template built with Next.js and the AI SDK by Vercel. It uses
-          the{' '}
-          <code className="rounded-md bg-muted px-1 py-0.5">streamText</code>{' '}
-          function in the server and the{' '}
-          <code className="rounded-md bg-muted px-1 py-0.5">useChat</code> hook
-          on the client to create a seamless chat experience.
+          rulings, designed to elevate your gameplay experience.
         </p>
-        <p>
-          You can learn more about the AI SDK by visiting the{' '}
-          <Link
-            className="font-medium underline underline-offset-4"
-            href="https://sdk.vercel.ai/docs"
-            target="_blank"
-          >
-            docs
-          </Link>
-          .
+        {/* 670px is right after iPhone SE */}
+        <p className="[@media(max-height:670px)]:hidden font-light">
+          Powered by up-to-date <span className="font-semibold">card rulings</span>, comprehensive <span className="font-semibold">game knowledge</span>, and enhanced <span className="font-semibold">reasoning models</span>.
         </p>
+        {error ? (
+          <p>Error loading stats.</p>
+        ) : isLoading ? (
+          <p>Loading stats...</p>
+        ) : (
+          <div className="flex flex-col gap-4 leading-relaxed text-center">
+            <p className="text-xs">
+              {data.dbStats.oracleCardCount} cards, {data.dbStats.rulingCount} rulings since {data.dbStats.recentOracleCardDate}
+            </p>
+            <p className="text-xs">
+              {data.vectorStats["mtr"].vectorCount}{' '}
+              <Link href="https://blogs.magicjudges.org/rules/mtr/" target="_blank" rel="noopener noreferrer" className="font-medium">
+                MTR
+              </Link>, 
+              {' '}{data.vectorStats["cr"].vectorCount}{' '}
+              <Link href="https://magic.wizards.com/en/rules" target="_blank" rel="noopener noreferrer" className="font-medium">
+                Comp. Rules
+              </Link>, 
+              {' '}{data.vectorStats["gls"].vectorCount}{' '}
+              <Link href="https://magic.wizards.com/en/rules" target="_blank" rel="noopener noreferrer" className="font-medium">
+                Glossary
+              </Link> docs
+            </p>
+          </div>
+        )}
       </div>
     </motion.div>
   );
