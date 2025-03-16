@@ -41,9 +41,6 @@ yarn-error.log*
 # turbo
 .turbo
 
-.vercel
-.vscode
-
 # vercel
 .vercel
 
@@ -57,3 +54,6 @@ __pycache__
 /playwright-report/
 /blob-report/
 /playwright/*
+
+# certs
+certificates

@@ -54,8 +54,10 @@ export function Chat({
     },
   });
 
+  const hasResponsesToVoteOn = messages.some((m) => m.role === 'assistant');
+
   const { data: votes } = useSWR<Array<Vote>>(
-    `/api/vote?chatId=${id}`,
+    hasResponsesToVoteOn ? `/api/vote?chatId=${id}` : null,
     fetcher,
   );
 

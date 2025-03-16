@@ -18,6 +18,7 @@ class OracleCard(BaseModel):
     object: Literal["card"]
     oracle_id: uuid.UUID
     name: str
+    released_at: datetime.date
     scryfall_uri: str
     layout: str
     image_uris: Optional[dict[str, str]] = None
@@ -31,6 +32,7 @@ class OracleCard(BaseModel):
     colors: Optional[list[str]] = None
     keywords: Optional[list[str]] = None
     games: Optional[list[str]] = None
+    edhrec_rank: Optional[int] = None
     
 class Ruling(BaseModel):
     object: Literal["ruling"]
@@ -93,35 +95,6 @@ logging.info(f"Rulings count: {len(rulings)}")
 # Fetch variables
 DB_URL = os.getenv("DATABASE_URL")
 
-oracle_card_table_def= """
-CREATE TABLE IF NOT EXISTS oracle_card (
-    id SERIAL PRIMARY KEY,
-    oracle_id UUID UNIQUE NOT NULL,
-    name TEXT NOT NULL,
-    scryfall_uri TEXT NOT NULL,
-    layout TEXT NOT NULL,
-    image_uris JSONB,
-    mana_cost TEXT,
-    cmc FLOAT,
-    type_line TEXT,
-    card_faces JSONB,
-    oracle_text TEXT,
-    power TEXT,
-    toughness TEXT,
-    colors TEXT[],
-    keywords TEXT[],
-    games TEXT[]
-);"""
-
-ruling_table_def = """
-CREATE TABLE IF NOT EXISTS ruling (
-    id SERIAL PRIMARY KEY,
-    oracle_id UUID references oracle_card(oracle_id),
-    source TEXT NOT NULL,
-    published_at DATE NOT NULL,
-    comment TEXT NOT NULL
-);"""
-
 # Connect to the database
 with psycopg2.connect(DB_URL) as conn, conn.cursor() as cur:
     # Check connection
@@ -131,23 +104,71 @@ with psycopg2.connect(DB_URL) as conn, conn.cursor() as cur:
     logging.info("Current Time:")
     logging.info(result)
 
-    # Create tables
-    cur.execute(oracle_card_table_def)
-    cur.execute(ruling_table_def)
-    logging.info("Tables created.")
+    # fail out if oracle_card table doesnt exist
+    cur.execute("SELECT EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'oracle_card');")
+    if not cur.fetchone()[0]:
+        raise ValueError("oracle_card table does not exist.")
+    # fail out if ruling table doesnt exist
+    cur.execute("SELECT EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'ruling');")
+    if not cur.fetchone()[0]:
+        raise ValueError("ruling table does not exist.")
+    logging.info("Tables checked.")
 
     # insert oracle cards
     execute_batch(cur, 
-                """INSERT INTO oracle_card (oracle_id, name, scryfall_uri, layout, image_uris, mana_cost, cmc, type_line, card_faces, oracle_text, power, toughness, colors, keywords, games) 
-                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)""", 
-                [(c.oracle_id.hex, c.name, c.scryfall_uri, c.layout, json.dumps(c.image_uris) if c.image_uris else None, c.mana_cost, c.cmc, c.type_line, json.dumps(c.card_faces) if c.card_faces else None, c.oracle_text, c.power, c.toughness, c.colors, c.keywords, c.games) for c in cards])
+                """INSERT INTO oracle_card (
+                    oracle_id,
+                    name,
+                    released_at,
+                    scryfall_uri,
+                    layout,
+                    image_uris,
+                    mana_cost,
+                    cmc,
+                    type_line,
+                    card_faces,
+                    oracle_text,
+                    power,
+                    toughness,
+                    colors,
+                    keywords,
+                    games,
+                    edhrec_rank
+                ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)""", 
+                [(
+                    c.oracle_id.hex, 
+                    c.name, 
+                    c.released_at, 
+                    c.scryfall_uri, 
+                    c.layout, 
+                    json.dumps(c.image_uris) if c.image_uris else None, 
+                    c.mana_cost, 
+                    c.cmc, 
+                    c.type_line, 
+                    json.dumps(c.card_faces) if c.card_faces else None, 
+                    c.oracle_text, 
+                    c.power, 
+                    c.toughness, 
+                    c.colors, 
+                    c.keywords, 
+                    c.games, 
+                    c.edhrec_rank
+                ) for c in cards])
     logging.info("Oracle cards inserted.")
 
     # insert rulings
     execute_batch(cur, 
-                """INSERT INTO ruling (oracle_id, source, published_at, comment) 
-                VALUES (%s, %s, %s, %s)""", 
-                [(r.oracle_id.hex, r.source, r.published_at, r.comment) for r in rulings])
+                """INSERT INTO ruling (oracle_id,
+                    source,
+                    published_at,
+                    comment
+                ) VALUES (%s, %s, %s, %s)""", 
+                [(
+                    r.oracle_id.hex,
+                    r.source,
+                    r.published_at,
+                    r.comment
+                ) for r in rulings])
     logging.info("Rulings inserted.")
 # Close the cursor and connection
 logging.info("Connection closed.")
