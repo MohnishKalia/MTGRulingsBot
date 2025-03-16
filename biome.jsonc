@@ -4,6 +4,7 @@
     "ignoreUnknown": false,
     "ignore": [
       "**/pnpm-lock.yaml",
+      "**/package-lock.json",
       "lib/db/migrations",
       "lib/editor/react-renderer.tsx",
       "node_modules",
