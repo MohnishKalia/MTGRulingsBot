@@ -40,7 +40,7 @@ export const {
       GoogleProvider({
         clientId: process.env.GOOGLE_ID,
         clientSecret: process.env.GOOGLE_SECRET,
-        allowDangerousEmailAccountLinking: true,
+        // allowDangerousEmailAccountLinking: true,
       }),
       DiscordProvider({
         clientId: process.env.DISCORD_ID,

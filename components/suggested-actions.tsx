@@ -16,24 +16,24 @@ interface SuggestedActionsProps {
 function PureSuggestedActions({ chatId, append }: SuggestedActionsProps) {
   const suggestedActions = [
     {
-      title: 'What are the advantages',
-      label: 'of using Next.js?',
-      action: 'What are the advantages of using Next.js?',
+      title: 'How many mulligans',
+      label: 'can I take in Commander?',
+      action: 'How many mulligans can I take in a multiplayer format like eg. Commander?',
     },
     {
-      title: 'Write code to',
-      label: `demonstrate djikstra's algorithm`,
-      action: `Write code to demonstrate djikstra's algorithm`,
+      title: 'Explain the combo',
+      label: 'between 2 popular cards',
+      action: `What is the combo between between "Niv-Mizzet, Parun" and an attached "Curiosity"?`,
     },
     {
-      title: 'Help me write an essay',
-      label: `about silicon valley`,
-      action: `Help me write an essay about silicon valley`,
+      title: 'How does Trample',
+      label: `work with Deathtouch?`,
+      action: `If an attacking 5/5 creature I control with Trample and Deathtouch is blocked by two 2/2 creatures, how much damage goes through?`,
     },
     {
-      title: 'What is the weather',
-      label: 'in San Francisco?',
-      action: 'What is the weather in San Francisco?',
+      title: 'Am I allowed to',
+      label: 'pile shuffle in a tournament?',
+      action: 'Am I allowed to pile shuffle in a tournament?',
     },
   ];
 
