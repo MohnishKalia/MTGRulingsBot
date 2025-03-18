@@ -13,15 +13,15 @@ export interface CardWithRuling {
     oracleText: string | null;
     power: string | null;
     toughness: string | null;
-    rulings: unknown;
+    rulings: { comment: string, published_at: string }[];
 };
 
 export const fetchCardDetails = tool({
-	description: 'Fetch card details from Postgres DB by searching for cards via names in fuzzy similarity search',
-	parameters: z.object({
-		cardNames: z.array(z.string()).describe('An array of card names to be fuzzy matched.'),
-	}),
-	execute: async ({ cardNames }) => {
+    description: 'Fetch card details from Postgres DB by searching for cards via names in fuzzy similarity search',
+    parameters: z.object({
+        cardNames: z.array(z.string()).describe('An array of card names to be fuzzy matched.'),
+    }),
+    execute: async ({ cardNames }) => {
         if (!process.env.POSTGRES_URL) {
             throw new Error('POSTGRES_URL environment variable is not defined');
         }
@@ -44,7 +44,7 @@ export const fetchCardDetails = tool({
                     toughness: oracleCard.toughness,
                     // cardFaces: oracleCard.cardFaces, TODO: add dfcs with array flatten
                     // aggregate all rulings into a JSON array for each card
-                    rulings: sql`json_agg(json_build_object('comment', ${ruling.comment}, 'published_at', ${ruling.publishedAt}))`,
+                    rulings: sql`json_agg(json_build_object('comment', ${ruling.comment}, 'published_at', ${ruling.publishedAt}))` as any,
                 })
                 .from(oracleCard)
                 .leftJoin(ruling, eq(oracleCard.oracleId, ruling.oracleId))
@@ -60,5 +60,5 @@ export const fetchCardDetails = tool({
         }
 
         return matchesByCardName;
-	},
+    },
 });

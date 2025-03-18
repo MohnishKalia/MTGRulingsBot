@@ -18,6 +18,8 @@ import { Tooltip, TooltipContent, TooltipTrigger } from './ui/tooltip';
 import { MessageEditor } from './message-editor';
 import { DocumentPreview } from './document-preview';
 import { MessageReasoning } from './message-reasoning';
+import { CardWithRuling } from '@/lib/ai/tools/fetch-card-details';
+import Link from 'next/link';
 
 const PurePreviewMessage = ({
   chatId,
@@ -167,6 +169,61 @@ const PurePreviewMessage = ({
                             result={result}
                             isReadonly={isReadonly}
                           />
+                        )  : toolName === 'fetchVectorDB' ? (
+                          <div className="flex flex-col gap-2">
+                            <div className="text-sm text-muted-foreground">
+                              Searching MTG rules and documents for: {args.query}
+                            </div>
+                            <div className="flex flex-col gap-2">
+                              {Object.entries(result as Record<string, string[]>).map(([namespace, items]) => (
+                                <div key={namespace} className="flex flex-col gap-1">
+                                  <div className="text-sm font-medium">{namespace.toUpperCase()}</div>
+                                  <span className="text-xs font-light">... {items.length} items</span>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        ) : toolName === 'fetchCardDetails' ? (
+                          <div className="flex flex-col gap-2">
+                            <div className="text-sm text-muted-foreground">
+                              Searching MTG cards + rulings for: <code>{JSON.stringify(args.cardNames)}</code>
+                            </div>
+                            <div>
+                            {Object.entries(result as Record<string, CardWithRuling[]>).map(([cardName, cards]) => (
+                              <div key={cardName} className="flex flex-col gap-1">
+                                <div className="text-sm font-medium">{cardName}</div>
+                                {cards.map((card, i) => (
+                                  <div key={i} className="border rounded-lg p-3">
+                                    <div className="text-sm">
+                                      <Link href={card.scryfallUri} target="_blank" rel="noopener noreferrer" className="font-medium underline underline-offset-2">
+                                        {card.name}
+                                      </Link>{' '}
+                                      {card.manaCost && <span className="mr-2">{card.manaCost}</span>}
+                                    </div>
+                                    {card.typeLine && <div className="text-sm text-muted-foreground">{card.typeLine}</div>}
+                                    {card.oracleText && <div className="mt-2 text-sm whitespace-pre-wrap">{card.oracleText}</div>}
+                                    {card.power && card.toughness && (
+                                      <div className="mt-2 text-sm">
+                                        <span className="text-muted-foreground">P/T: </span>
+                                        {card.power}/{card.toughness}
+                                      </div>
+                                    )}
+                                    {card.rulings && (
+                                      <div className="mt-3 border-t pt-2">
+                                        <div className="text-sm font-medium">Rulings:</div>
+                                        <ul className="list-disc list-inside space-y-1 text-sm">
+                                          {card.rulings.map((ruling: any, i: number) => (
+                                            <li key={i}>{ruling.comment}</li>
+                                          ))}
+                                        </ul>
+                                      </div>
+                                    )}
+                                  </div>
+                                ))}
+                              </div>
+                            ))}
+                            </div>
+                          </div>
                         ) : (
                           <pre>{JSON.stringify(result, null, 2)}</pre>
                         )}

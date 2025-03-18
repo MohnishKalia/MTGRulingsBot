@@ -15,6 +15,11 @@ export const fetchVectorDB = tool({
         });
 
         const namespaces = ['gls', 'cr', 'mtr'] as const;
+        const fullNames = {
+            'gls': 'Magic Comprehensive Glossary',
+            'cr': 'Magic Comprehensive Rules',
+            'mtr': 'Magic Tournament Rules',
+        } as const;
         const allResults: Record<string, string[]> = {};
         const HIGH_CONFIDENCE_THRESHOLD = 0.6;
 
@@ -28,7 +33,7 @@ export const fetchVectorDB = tool({
                 topK: 7,
             }, {namespace: ns});
             const hConf = result.filter(r => r.score > HIGH_CONFIDENCE_THRESHOLD);
-            allResults[ns] = hConf 
+            allResults[fullNames[ns]] = hConf 
                 ? [...hConf.map(r => r.data!)] 
                 : ["No high quality vectors found. Refine search query."];
         }
