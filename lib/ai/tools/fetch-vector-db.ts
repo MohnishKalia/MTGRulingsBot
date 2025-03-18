@@ -3,7 +3,7 @@ import { z } from 'zod';
 import { Index } from '@upstash/vector';
 
 export const fetchVectorDB = tool({
-    description: 'Query upstash vector store across namespaces to get top 5 records with high confidence',
+    description: 'Queries Upstash vector store across all non-card MTG data sources to get top 7 records with high confidence.',
     parameters: z.object({
         query: z.string().describe('The search query to run against the vector database'),
     }),
@@ -15,9 +15,8 @@ export const fetchVectorDB = tool({
         });
 
         const namespaces = ['gls', 'cr', 'mtr'] as const;
-        // @ts-ignore i know
-        const allResults: Record<typeof namespaces, string[]> = {};
-        const HIGH_CONFIDENCE_THRESHOLD = 0.75;
+        const allResults: Record<string, string[]> = {};
+        const HIGH_CONFIDENCE_THRESHOLD = 0.6;
 
         // Query each namespace for top 5 results
         for (const ns of namespaces) {
@@ -26,17 +25,12 @@ export const fetchVectorDB = tool({
                 includeData: true,
                 includeMetadata: false,
                 includeVectors: false,
-                topK: 5,
+                topK: 7,
             }, {namespace: ns});
             const hConf = result.filter(r => r.score > HIGH_CONFIDENCE_THRESHOLD);
-            if (hConf) {
-                // @ts-ignore i know
-                allResults[ns] = [];
-                hConf.forEach((record) => {
-                    // @ts-ignore i know
-                    allResults[ns].push(record.data);
-                });
-            }
+            allResults[ns] = hConf 
+                ? [...hConf.map(r => r.data!)] 
+                : ["No high quality vectors found. Refine search query."];
         }
 
         return allResults;

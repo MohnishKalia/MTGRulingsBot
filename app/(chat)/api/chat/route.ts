@@ -78,18 +78,13 @@ export async function POST(request: Request) {
           model: myProvider.languageModel(selectedChatModel),
           system: systemPrompt({ selectedChatModel }),
           messages,
-          maxSteps: 5,
+          maxSteps: 2,
           experimental_activeTools:
-            selectedChatModel === 'chat-model-reasoning'
-              ? [
-                'fetchCardDetails',
-                'fetchVectorDB',
-                ]
+            selectedChatModel === 'chat-model-small'
+              ? []
               : [
-                  'getWeather',
-                  'createDocument',
-                  'updateDocument',
-                  'requestSuggestions',
+                  'fetchCardDetails',
+                  'fetchVectorDB',
                 ],
           experimental_transform: smoothStream({ chunking: 'word' }),
           experimental_generateMessageId: generateUUID,
@@ -104,6 +99,7 @@ export async function POST(request: Request) {
             fetchCardDetails,
             fetchVectorDB,
           },
+          // toolChoice: 'required',
           onFinish: async ({ response, reasoning }) => {
             if (session.user?.id) {
               try {

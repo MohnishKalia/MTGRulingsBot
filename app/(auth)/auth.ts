@@ -1,10 +1,9 @@
-import { compare } from 'bcrypt-ts';
 import NextAuth, { type User, type Session } from 'next-auth';
-import Credentials from 'next-auth/providers/credentials';
 import DiscordProvider from 'next-auth/providers/discord';
 import GoogleProvider from 'next-auth/providers/google';
+import RedditProvider from 'next-auth/providers/reddit';
+import ResendProvider from 'next-auth/providers/resend';
 
-import { getUser } from '@/lib/db/queries';
 
 import { authConfig } from './auth.config';
 
@@ -26,17 +25,6 @@ export const {
     ...authConfig,
     adapter: NeonAdapter(pool),
     providers: [
-      Credentials({
-        credentials: {},
-        async authorize({ email, password }: any) {
-          const users = await getUser(email);
-          if (users.length === 0) return null;
-          // biome-ignore lint: Forbidden non-null assertion.
-          const passwordsMatch = await compare(password, users[0].password!);
-          if (!passwordsMatch) return null;
-          return users[0] as any;
-        },
-      }),
       GoogleProvider({
         clientId: process.env.GOOGLE_ID,
         clientSecret: process.env.GOOGLE_SECRET,
@@ -46,13 +34,26 @@ export const {
         clientId: process.env.DISCORD_ID,
         clientSecret: process.env.DISCORD_SECRET,
       }),
+      RedditProvider({
+        clientId: process.env.REDDIT_CLIENT_ID,
+        clientSecret: process.env.REDDIT_CLIENT_SECRET,
+        authorization: {
+          params: {
+            duration: 'permanent',
+          },
+        },
+      }),
+      ResendProvider({
+        apiKey: process.env.AUTH_RESEND_KEY,
+        from: 'rules.fyi <no-reply@rules.fyi>',
+      }),
     ],
     trustHost: true,
     secret: process.env.AUTH_SECRET,
-    // debug: process.env.NODE_ENV === 'development',
+    debug: process.env.NODE_ENV === 'development',
     session: {
       strategy: 'jwt',
-      maxAge: 30 * 24 * 60 * 60, // 30 days
+      maxAge: 7 * 24 * 60 * 60, // 7 days
     },
     callbacks: {
       async jwt({ token, user }) {
