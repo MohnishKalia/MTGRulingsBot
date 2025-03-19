@@ -195,6 +195,7 @@ const PurePreviewMessage = ({
                                   <AccordionContent>
                                     <ol className="list-decimal list-inside space-y-2">
                                       {items.map((item, i) => (
+                                      // biome-ignore lint/suspicious/noArrayIndexKey: last resort for string[]
                                       <li key={i} className="text-sm p-3">
                                         <ScrollArea className="flex max-h-40 flex-col overflow-y-auto rounded-md border p-4 leading-relaxed text-muted-foreground">
                                           {item}
@@ -216,6 +217,7 @@ const PurePreviewMessage = ({
                             {Object.entries(result as Record<string, CardWithRuling[]>).map(([cardName, cards]) => (
                               <div key={cardName} className="border rounded-lg p-3 mt-2">
                               {cards.map((card, i) => (
+                                // biome-ignore lint/suspicious/noArrayIndexKey: TODO: could pull thru id, but could confuse LLM downstream
                                 <div key={i}>
                                 <div className="text-sm">
                                   <Link href={card.scryfallUri} target="_blank" rel="noopener noreferrer" className="font-medium underline underline-offset-2">
@@ -244,6 +246,7 @@ const PurePreviewMessage = ({
                                             {card.rulings
                                               .sort((a: any, b: any) => a.published_at.localeCompare(b.published_at))
                                               .map((ruling: any, i: number) => (
+                                              // biome-ignore lint/suspicious/noArrayIndexKey: last resort for string[]
                                               <li key={i}>
                                                 <span className="ml-1">{ruling.comment}</span>
                                                 <div className="text-muted-foreground text-xs mt-1">({ruling.published_at})</div>

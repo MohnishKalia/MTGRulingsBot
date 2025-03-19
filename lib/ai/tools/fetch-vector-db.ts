@@ -10,8 +10,8 @@ export const fetchVectorDB = tool({
     execute: async ({ query }) => {
         // Initialize Upstash vector index from env variables
         const index = new Index({
-            url: process.env.UPSTASH_VECTOR_REST_URL!,
-            token: process.env.UPSTASH_VECTOR_REST_TOKEN!,
+            url: process.env.UPSTASH_VECTOR_REST_URL,
+            token: process.env.UPSTASH_VECTOR_REST_TOKEN,
         });
 
         const namespaces = ['gls', 'cr', 'mtr'] as const;
@@ -34,6 +34,7 @@ export const fetchVectorDB = tool({
             }, {namespace: ns});
             const hConf = result.filter(r => r.score > HIGH_CONFIDENCE_THRESHOLD);
             allResults[fullNames[ns]] = hConf 
+                // biome-ignore lint/style/noNonNullAssertion: upstash includeData: true
                 ? [...hConf.map(r => r.data!)] 
                 : ["No high quality vectors found. Refine search query."];
         }
