@@ -49,15 +49,15 @@ export const Overview = () => {
               {isLoading
                 ? <Skeleton className="h-4 w-40"/>
                 : <p className="text-xs">
-                    {data.vectorStats["mtr"].vectorCount}{' '}
+                    {data.vectorStats.mtr.vectorCount}{' '}
                     <Link href="https://blogs.magicjudges.org/rules/mtr/" target="_blank" rel="noopener noreferrer" className="font-medium">
                       MTR
                     </Link>, 
-                    {' '}{data.vectorStats["cr"].vectorCount}{' '}
+                    {' '}{data.vectorStats.cr.vectorCount}{' '}
                     <Link href="https://magic.wizards.com/en/rules" target="_blank" rel="noopener noreferrer" className="font-medium">
                       Comp. Rules
                     </Link>, 
-                    {' '}{data.vectorStats["gls"].vectorCount}{' '}
+                    {' '}{data.vectorStats.gls.vectorCount}{' '}
                     <Link href="https://magic.wizards.com/en/rules" target="_blank" rel="noopener noreferrer" className="font-medium">
                       Glossary
                     </Link> docs

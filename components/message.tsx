@@ -18,7 +18,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from './ui/tooltip';
 import { MessageEditor } from './message-editor';
 import { DocumentPreview } from './document-preview';
 import { MessageReasoning } from './message-reasoning';
-import { CardWithRuling } from '@/lib/ai/tools/fetch-card-details';
+import type { CardWithRuling } from '@/lib/ai/tools/fetch-card-details';
 import Link from 'next/link';
 import {
   Accordion,

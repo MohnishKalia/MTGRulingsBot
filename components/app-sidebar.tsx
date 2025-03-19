@@ -64,7 +64,7 @@ export function AppSidebar({ user }: { user: User | undefined }) {
               rel="noopener noreferrer"
               className="flex items-center justify-center gap-2"
             >
-              <Github className="h-5 w-5" />
+              <Github className="size-5" />
               Report an Issue
             </Link>
           </Button>

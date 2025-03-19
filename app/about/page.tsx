@@ -1,7 +1,6 @@
 import { Card, CardContent, CardHeader } from "@/components/ui/card"
 import { ArrowRight, Zap, ShieldCheck, Brain, Clock, Github } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import Image from "next/image"
 import Link from "next/link"
 import { cn } from "@/lib/utils"
 
@@ -25,7 +24,7 @@ export default function About() {
                 rel="noopener noreferrer"
                 className="flex items-center gap-2"
               >
-                <Github className="h-5 w-5" />
+                <Github className="size-5" />
                 Report an Issue
               </Link>
             </Button>
@@ -59,7 +58,7 @@ export default function About() {
             <div className="mt-10 flex items-center justify-center gap-x-6">
               <Button asChild size="lg" className="bg-purple-600 hover:bg-purple-700 dark:bg-purple-500 dark:hover:bg-purple-600">
                 <Link href="/">
-                  Try it now <ArrowRight className="ml-2 h-4 w-4" />
+                  Try it now <ArrowRight className="ml-2 size-4" />
                 </Link>
               </Button>
             </div>
@@ -74,7 +73,7 @@ export default function About() {
           <div className="grid md:grid-cols-2 gap-12 items-center">
             <div>
               <div className="rounded-full bg-purple-100 dark:bg-purple-950 p-3 w-fit mb-6">
-                <Zap className="h-8 w-8 text-purple-600 dark:text-purple-400" />
+                <Zap className="size-8 text-purple-600 dark:text-purple-400" />
               </div>
               <h2 className={cn(
                 "text-5xl font-bold tracking-tight",
@@ -94,7 +93,7 @@ export default function About() {
               <CardHeader>
                 <div className="flex items-center gap-4">
                   <div className="rounded-full bg-purple-100 dark:bg-purple-950 p-3">
-                    <Zap className="h-6 w-6 text-purple-600 dark:text-purple-400" />
+                    <Zap className="size-6 text-purple-600 dark:text-purple-400" />
                   </div>
                   <h3 className="text-xl font-semibold text-foreground">Instant Answers</h3>
                 </div>
@@ -117,7 +116,7 @@ export default function About() {
               <CardHeader>
                 <div className="flex items-center gap-4">
                   <div className="rounded-full bg-purple-100 dark:bg-purple-950 p-3">
-                    <ShieldCheck className="h-6 w-6 text-purple-600 dark:text-purple-400" />
+                    <ShieldCheck className="size-6 text-purple-600 dark:text-purple-400" />
                   </div>
                   <h3 className="text-xl font-semibold text-foreground">Official Rules</h3>
                 </div>
@@ -128,7 +127,7 @@ export default function About() {
             </Card>
             <div className="order-1 md:order-2">
               <div className="rounded-full bg-purple-100 dark:bg-purple-950 p-3 w-fit mb-6">
-                <ShieldCheck className="h-8 w-8 text-purple-600 dark:text-purple-400" />
+                <ShieldCheck className="size-8 text-purple-600 dark:text-purple-400" />
               </div>
               <h2 className="text-5xl font-bold tracking-tight bg-gradient-to-br from-foreground via-foreground to-muted-foreground bg-clip-text text-transparent">
                 Official Rules
@@ -148,7 +147,7 @@ export default function About() {
           <div className="grid md:grid-cols-2 gap-12 items-center">
             <div>
               <div className="rounded-full bg-purple-100 dark:bg-purple-950 p-3 w-fit mb-6">
-                <Brain className="h-8 w-8 text-purple-600 dark:text-purple-400" />
+                <Brain className="size-8 text-purple-600 dark:text-purple-400" />
               </div>
               <h2 className="text-5xl font-bold tracking-tight bg-gradient-to-br from-foreground via-foreground to-muted-foreground bg-clip-text text-transparent">
                 AI-Enhanced
@@ -162,7 +161,7 @@ export default function About() {
               <CardHeader>
                 <div className="flex items-center gap-4">
                   <div className="rounded-full bg-purple-100 dark:bg-purple-950 p-3">
-                    <Brain className="h-6 w-6 text-purple-600 dark:text-purple-400" />
+                    <Brain className="size-6 text-purple-600 dark:text-purple-400" />
                   </div>
                   <h3 className="text-xl font-semibold text-foreground">AI-Enhanced</h3>
                 </div>
@@ -185,7 +184,7 @@ export default function About() {
               <CardHeader>
                 <div className="flex items-center gap-4">
                   <div className="rounded-full bg-purple-100 dark:bg-purple-950 p-3">
-                    <Clock className="h-6 w-6 text-purple-600 dark:text-purple-400" />
+                    <Clock className="size-6 text-purple-600 dark:text-purple-400" />
                   </div>
                   <h3 className="text-xl font-semibold text-foreground">Always Available</h3>
                 </div>
@@ -196,7 +195,7 @@ export default function About() {
             </Card>
             <div className="order-1 md:order-2">
               <div className="rounded-full bg-purple-100 dark:bg-purple-950 p-3 w-fit mb-6">
-                <Clock className="h-8 w-8 text-purple-600 dark:text-purple-400" />
+                <Clock className="size-8 text-purple-600 dark:text-purple-400" />
               </div>
               <h2 className="text-5xl font-bold tracking-tight bg-gradient-to-br from-foreground via-foreground to-muted-foreground bg-clip-text text-transparent">
                 Always Available
@@ -220,7 +219,7 @@ export default function About() {
               <figure>
                 <blockquote className="text-lg font-semibold text-foreground">
                   <p>
-                    "rules.fyi has completely changed how we handle rule questions during our weekly Commander games. No more debates, just instant, reliable answers."
+                    &quot;rules.fyi has completely changed how we handle rule questions during our weekly Commander games. No more debates, just instant, reliable answers.&quot;
                   </p>
                 </blockquote>
                 <figcaption className="mt-6">
@@ -235,7 +234,7 @@ export default function About() {
               <figure>
                 <blockquote className="text-lg font-semibold text-foreground">
                   <p>
-                    "Perfect for our casual EDH pod! We often brew weird combos, and rules.fyi helps us understand complex interactions instantly."
+                    &quot;Perfect for our casual EDH pod! We often brew weird combos, and rules.fyi helps us understand complex interactions instantly.&quot;
                   </p>
                 </blockquote>
                 <figcaption className="mt-6">
@@ -250,7 +249,7 @@ export default function About() {
               <figure>
                 <blockquote className="text-lg font-semibold text-foreground">
                   <p>
-                    "As a competitive player, accuracy is everything. rules.fyi gives me confident answers about intricate stack interactions during tournament practice."
+                    &quot;As a competitive player, accuracy is everything. rules.fyi gives me confident answers about intricate stack interactions during tournament practice.&quot;
                   </p>
                 </blockquote>
                 <figcaption className="mt-6">
