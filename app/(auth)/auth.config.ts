@@ -13,15 +13,16 @@ export const authConfig = {
     authorized({ auth, request: { nextUrl } }) {
       const isLoggedIn = !!auth?.user;
       const isOnChat = nextUrl.pathname.startsWith('/');
-      const isOnRegister = nextUrl.pathname.startsWith('/register');
       const isOnLogin = nextUrl.pathname.startsWith('/login');
 
-      if (isLoggedIn && (isOnLogin || isOnRegister)) {
+      // console.log("middleware:", {isLoggedIn, isOnChat, isOnLogin});
+
+      if (isLoggedIn && (isOnLogin)) {
         return Response.redirect(new URL('/', nextUrl as unknown as URL));
       }
 
-      if (isOnRegister || isOnLogin) {
-        return true; // Always allow access to register and login pages
+      if (isOnLogin) {
+        return true; // Always allow access to login and info pages
       }
 
       if (isOnChat) {

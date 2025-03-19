@@ -32,7 +32,8 @@ export function PureMessageActions({
 
   if (isLoading) return null;
   if (message.role === 'user') return null;
-  if (message.toolInvocations && message.toolInvocations.length > 0)
+  const toolInvocations = message.parts?.filter(p => p.type === 'tool-invocation')
+  if (toolInvocations && toolInvocations.length > 0)
     return null;
 
   return (

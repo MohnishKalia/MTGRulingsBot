@@ -1,6 +1,4 @@
 'use client';
-
-import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useActionState, useEffect, useState } from 'react';
 import { toast } from '@/components/toast';
@@ -35,8 +33,12 @@ export default function Page() {
         description: 'Failed validating your submission!',
       });
     } else if (state.status === 'success') {
+      toast({
+        type: 'success',
+        description: 'Check your email for a login link!',
+      });
       setIsSuccessful(true);
-      router.refresh();
+      // router.refresh();
     }
   }, [state.status, router]);
 
@@ -55,7 +57,7 @@ export default function Page() {
           </p>
         </div>
         <AuthForm action={handleSubmit} defaultEmail={email}>
-          <SubmitButton isSuccessful={isSuccessful}>Sign in</SubmitButton>
+          <SubmitButton isSuccessful={isSuccessful}>Sign in/up</SubmitButton>
         </AuthForm>
       </div>
     </div>

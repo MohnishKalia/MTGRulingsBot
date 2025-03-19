@@ -17,6 +17,7 @@ import {
 } from '@/components/ui/sidebar';
 import Link from 'next/link';
 import { Tooltip, TooltipContent, TooltipTrigger } from './ui/tooltip';
+import { Github } from 'lucide-react';
 
 export function AppSidebar({ user }: { user: User | undefined }) {
   const router = useRouter();
@@ -56,6 +57,17 @@ export function AppSidebar({ user }: { user: User | undefined }) {
               <TooltipContent align="end">New Chat</TooltipContent>
             </Tooltip>
           </div>
+          <Button variant="ghost" size="sm" asChild className="w-full mt-2">
+            <Link 
+              href="https://github.com/MohnishKalia/MTGRulingsBot/issues"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center justify-center gap-2"
+            >
+              <Github className="size-5" />
+              Report an Issue
+            </Link>
+          </Button>
         </SidebarMenu>
       </SidebarHeader>
       <SidebarContent>

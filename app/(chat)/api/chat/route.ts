@@ -22,6 +22,8 @@ import { createDocument } from '@/lib/ai/tools/create-document';
 import { updateDocument } from '@/lib/ai/tools/update-document';
 import { requestSuggestions } from '@/lib/ai/tools/request-suggestions';
 import { getWeather } from '@/lib/ai/tools/get-weather';
+import { fetchCardDetails } from '@/lib/ai/tools/fetch-card-details';
+import { fetchVectorDB } from '@/lib/ai/tools/fetch-vector-db';
 import { isProductionEnvironment } from '@/lib/constants';
 import { NextResponse } from 'next/server';
 import { myProvider } from '@/lib/ai/providers';
@@ -78,13 +80,11 @@ export async function POST(request: Request) {
           messages,
           maxSteps: 5,
           experimental_activeTools:
-            selectedChatModel === 'chat-model-reasoning'
+            selectedChatModel === 'chat-model-small'
               ? []
               : [
-                  'getWeather',
-                  'createDocument',
-                  'updateDocument',
-                  'requestSuggestions',
+                  'fetchCardDetails',
+                  'fetchVectorDB',
                 ],
           experimental_transform: smoothStream({ chunking: 'word' }),
           experimental_generateMessageId: generateUUID,
@@ -96,7 +96,10 @@ export async function POST(request: Request) {
               session,
               dataStream,
             }),
+            fetchCardDetails,
+            fetchVectorDB,
           },
+          // toolChoice: 'required',
           onFinish: async ({ response, reasoning }) => {
             if (session.user?.id) {
               try {
@@ -104,7 +107,7 @@ export async function POST(request: Request) {
                   messages: response.messages,
                   reasoning,
                 });
-
+                
                 await saveMessages({
                   messages: sanitizedResponseMessages.map((message) => {
                     return {

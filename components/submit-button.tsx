@@ -22,16 +22,18 @@ export function SubmitButton({
       disabled={pending || isSuccessful}
       className="relative"
     >
-      {children}
+      {isSuccessful ? 'Check your email!' : children}
 
-      {(pending || isSuccessful) && (
+      {(pending) && (
         <span className="animate-spin absolute right-4">
           <LoaderIcon />
         </span>
       )}
 
       <output aria-live="polite" className="sr-only">
-        {pending || isSuccessful ? 'Loading' : 'Submit form'}
+        {isSuccessful 
+          ? 'Check your email'
+          : pending ? 'Loading' : 'Submit form'}
       </output>
     </Button>
   );

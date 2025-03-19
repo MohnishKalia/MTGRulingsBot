@@ -1,11 +1,11 @@
-import { Message } from 'ai';
+import type { Message } from 'ai';
 import { PreviewMessage, ThinkingMessage } from './message';
 import { useScrollToBottom } from './use-scroll-to-bottom';
 import { Overview } from './overview';
 import { memo } from 'react';
-import { Vote } from '@/lib/db/schema';
+import type { Vote } from '@/lib/db/schema';
 import equal from 'fast-deep-equal';
-import { UseChatHelpers } from '@ai-sdk/react';
+import type { UseChatHelpers } from '@ai-sdk/react';
 
 interface MessagesProps {
   chatId: string;
@@ -59,7 +59,7 @@ function PureMessages({
         messages[messages.length - 1].role === 'user' && <ThinkingMessage />}
 
       <div
-        ref={messagesEndRef}
+        ref={(status === 'streaming' || status === 'submitted') ? messagesEndRef : null}
         className="shrink-0 min-w-[24px] min-h-[24px]"
       />
     </div>

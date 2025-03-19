@@ -18,6 +18,15 @@ import { Tooltip, TooltipContent, TooltipTrigger } from './ui/tooltip';
 import { MessageEditor } from './message-editor';
 import { DocumentPreview } from './document-preview';
 import { MessageReasoning } from './message-reasoning';
+import type { CardWithRuling } from '@/lib/ai/tools/fetch-card-details';
+import Link from 'next/link';
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from '@/components/ui/accordion';
+import { ScrollArea } from '@/components/ui/scroll-area';
 
 const PurePreviewMessage = ({
   chatId,
@@ -41,6 +50,10 @@ const PurePreviewMessage = ({
   isReadonly: boolean;
 }) => {
   const [mode, setMode] = useState<'view' | 'edit'>('view');
+
+  const toolInvocations = message.parts?.filter(p => p.type === 'tool-invocation').map(p => p.toolInvocation);
+  const reasoningParts = message.parts?.filter(p => p.type === 'reasoning').map(p => p.reasoning);
+  // console.log({parts: message.parts, toolInvocations, reasoningParts})
 
   return (
     <AnimatePresence>
@@ -83,14 +96,14 @@ const PurePreviewMessage = ({
               </div>
             )}
 
-            {message.reasoning && (
+            {reasoningParts && reasoningParts.length > 0 && (
               <MessageReasoning
                 isLoading={isLoading}
-                reasoning={message.reasoning}
+                reasoning={reasoningParts?.join('\n')}
               />
             )}
 
-            {(message.content || message.reasoning) && mode === 'view' && (
+            {(message.content || (reasoningParts && reasoningParts.length > 0)) && mode === 'view' && (
               <div
                 data-testid="message-content"
                 className="flex flex-row gap-2 items-start"
@@ -138,9 +151,9 @@ const PurePreviewMessage = ({
               </div>
             )}
 
-            {message.toolInvocations && message.toolInvocations.length > 0 && (
+            {toolInvocations && toolInvocations.length > 0 && (
               <div className="flex flex-col gap-4">
-                {message.toolInvocations.map((toolInvocation) => {
+                {toolInvocations.map((toolInvocation) => {
                   const { toolName, toolCallId, state, args } = toolInvocation;
 
                   if (state === 'result') {
@@ -167,6 +180,89 @@ const PurePreviewMessage = ({
                             result={result}
                             isReadonly={isReadonly}
                           />
+                        )  : toolName === 'fetchVectorDB' ? (
+                          <div className="flex flex-col gap-2">
+                            <div className="text-sm text-muted-foreground">Searching MTG rules and documents for:</div>
+                            <div className="mt-1 px-2 py-1 bg-muted rounded text-xs">
+                              <code>{args.query}</code>
+                            </div>
+                            <Accordion type="single" collapsible>
+                              {Object.entries(result as Record<string, string[]>).map(([namespace, items]) => (
+                                <AccordionItem key={namespace} value={namespace}>
+                                  <AccordionTrigger className="text-sm">
+                                    {namespace.toUpperCase()} ({items.length} items)
+                                  </AccordionTrigger>
+                                  <AccordionContent>
+                                    <ol className="list-decimal list-inside space-y-2">
+                                      {items.map((item, i) => (
+                                      // biome-ignore lint/suspicious/noArrayIndexKey: last resort for string[]
+                                      <li key={i} className="text-sm p-3">
+                                        <ScrollArea className="flex max-h-40 flex-col overflow-y-auto rounded-md border p-4 leading-relaxed text-muted-foreground">
+                                          {item}
+                                        </ScrollArea>
+                                      </li>
+                                      ))}
+                                    </ol>
+                                  </AccordionContent>
+                                </AccordionItem>
+                              ))}
+                            </Accordion>
+                          </div>
+                        ) : toolName === 'fetchCardDetails' ? (
+                            <div className="flex flex-col gap-2">
+                            <div className="text-sm text-muted-foreground">Searching MTG cards + rulings for:</div>
+                            <div className="mt-1 px-2 py-1 bg-muted rounded text-xs">
+                              <code>{JSON.stringify(args.cardNames)}</code>
+                            </div>
+                            {Object.entries(result as Record<string, CardWithRuling[]>).map(([cardName, cards]) => (
+                              <div key={cardName} className="border rounded-lg p-3 mt-2">
+                              {cards.map((card, i) => (
+                                // biome-ignore lint/suspicious/noArrayIndexKey: TODO: could pull thru id, but could confuse LLM downstream
+                                <div key={i}>
+                                <div className="text-sm">
+                                  <Link href={card.scryfallUri} target="_blank" rel="noopener noreferrer" className="font-medium underline underline-offset-2">
+                                  {card.name}
+                                  </Link>{' '}
+                                  {card.manaCost && <span className="mr-2">{card.manaCost}</span>}
+                                </div>
+                                {card.typeLine && <div className="text-sm text-muted-foreground">{card.typeLine}</div>}
+                                {card.oracleText && <div className="mt-2 text-sm whitespace-pre-wrap">{card.oracleText}</div>}
+                                {card.power && card.toughness && (
+                                  <div className="mt-2 text-sm">
+                                  <span className="text-muted-foreground">P/T: </span>
+                                  {card.power}/{card.toughness}
+                                  </div>
+                                )}
+                                {card.rulings && card.rulings.length > 0 && ( 
+                                  <>
+                                    <hr className="my-3 border-muted" />
+                                    <Accordion type="single" collapsible className="mt-3">
+                                      <AccordionItem value="rulings">
+                                        <AccordionTrigger className="text-sm font-medium">
+                                          Rulings ({card.rulings.length})
+                                        </AccordionTrigger>
+                                        <AccordionContent>
+                                            <ul className="list-disc list-outside space-y-1 text-sm ml-5">
+                                            {card.rulings
+                                              .sort((a: any, b: any) => a.published_at.localeCompare(b.published_at))
+                                              .map((ruling: any, i: number) => (
+                                              // biome-ignore lint/suspicious/noArrayIndexKey: last resort for string[]
+                                              <li key={i}>
+                                                <span className="ml-1">{ruling.comment}</span>
+                                                <div className="text-muted-foreground text-xs mt-1">({ruling.published_at})</div>
+                                              </li>
+                                            ))}
+                                            </ul>
+                                        </AccordionContent>
+                                      </AccordionItem>
+                                    </Accordion>
+                                  </>
+                                )}
+                                </div>
+                              ))}
+                              </div>
+                            ))}
+                            </div>
                         ) : (
                           <pre>{JSON.stringify(result, null, 2)}</pre>
                         )}
@@ -196,6 +292,20 @@ const PurePreviewMessage = ({
                           args={args}
                           isReadonly={isReadonly}
                         />
+                      ) : toolName === 'fetchVectorDB' ? (
+                        <div className="flex flex-col gap-2">
+                          <div className="text-sm text-muted-foreground">Searching MTG rules and documents for:</div>
+                          <div className="mt-1 px-2 py-1 bg-muted rounded text-xs">
+                            <code>{args.query}</code>
+                          </div>
+                        </div>
+                      ) : toolName === 'fetchCardDetails' ? (
+                        <div className="flex flex-col gap-2">
+                          <div className="text-sm text-muted-foreground">Searching MTG cards + rulings for:</div>
+                          <div className="mt-1 px-2 py-1 bg-muted rounded text-xs">
+                            <code>{JSON.stringify(args.cardNames)}</code>
+                          </div>
+                        </div>
                       ) : null}
                     </div>
                   );
