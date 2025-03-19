@@ -59,7 +59,7 @@ function PureMessages({
         messages[messages.length - 1].role === 'user' && <ThinkingMessage />}
 
       <div
-        ref={messagesEndRef}
+        ref={(status === 'streaming' || status === 'submitted') ? messagesEndRef : null}
         className="shrink-0 min-w-[24px] min-h-[24px]"
       />
     </div>

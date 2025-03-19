@@ -44,7 +44,7 @@ export const fetchCardDetails = tool({
                     toughness: oracleCard.toughness,
                     // cardFaces: oracleCard.cardFaces, TODO: add dfcs with array flatten
                     // aggregate all rulings into a JSON array for each card
-                    rulings: sql`json_agg(json_build_object('comment', ${ruling.comment}, 'published_at', ${ruling.publishedAt}))` as any,
+                    rulings: sql`COALESCE(json_agg(json_build_object('comment', ${ruling.comment}, 'published_at', ${ruling.publishedAt})) FILTER (WHERE ${ruling.oracleId} IS NOT NULL), '[]')` as any,
                 })
                 .from(oracleCard)
                 .leftJoin(ruling, eq(oracleCard.oracleId, ruling.oracleId))

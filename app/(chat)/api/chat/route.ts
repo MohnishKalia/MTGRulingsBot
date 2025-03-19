@@ -78,7 +78,7 @@ export async function POST(request: Request) {
           model: myProvider.languageModel(selectedChatModel),
           system: systemPrompt({ selectedChatModel }),
           messages,
-          maxSteps: 2,
+          maxSteps: 5,
           experimental_activeTools:
             selectedChatModel === 'chat-model-small'
               ? []
@@ -107,7 +107,7 @@ export async function POST(request: Request) {
                   messages: response.messages,
                   reasoning,
                 });
-
+                
                 await saveMessages({
                   messages: sanitizedResponseMessages.map((message) => {
                     return {
