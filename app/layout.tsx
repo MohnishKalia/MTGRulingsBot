@@ -25,11 +25,11 @@ export const metadata: Metadata = {
     site: "@MohnishKalia",
     images: [
       {
-        url: "https://rules.fyi/logo.svg",
-        type: "image/svg+xml",
+        url: "/logo.png",
+        type: "image/png",
         alt: "mohnishkalia",
-        height: 630,
-        width: 1200
+        height: 600,
+        width: 1000
       }
     ]
   },
@@ -47,19 +47,37 @@ export const metadata: Metadata = {
     statusBarStyle: "default",
     capable: true
   },
+  manifest: "/site.webmanifest",
   icons: {
     icon: [
       {
+        url: "/favicon-32x32.png",
+        type: "image/png",
+        sizes: "32x32"
+      },
+      {
+        url: "/favicon-16x16.png",
+        type: "image/png",
+        sizes: "16x16"
+      },
+      {
         url: "/favicon.ico",
         type: "image/x-icon"
-      },
+      }
+    ],
+    apple: [
+      {
+        url: "/apple-touch-icon.png",
+        sizes: "180x180",
+        type: "image/png"
+      }
     ],
     shortcut: [
       {
         url: "/favicon.ico",
         type: "image/x-icon"
       }
-    ],
+    ]
   }
 };
 
