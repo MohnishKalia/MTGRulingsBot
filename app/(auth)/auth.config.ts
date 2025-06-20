@@ -10,10 +10,25 @@ export const authConfig = {
     // while this file is also used in non-Node.js environments
   ],
   callbacks: {
-    authorized({ auth, request: { nextUrl } }) {
+    authorized({ auth, request: { nextUrl, cookies } }) {
       const isLoggedIn = !!auth?.user;
-      const isOnChat = nextUrl.pathname.startsWith('/');
       const isOnLogin = nextUrl.pathname.startsWith('/login');
+      const isOnAbout = nextUrl.pathname.startsWith('/about');
+      const isOnChat = nextUrl.pathname.startsWith('/') && !isOnLogin && !isOnAbout;
+
+      // Check for first-time visit
+      const isFirstTime = !cookies.get('first_time_visit');
+      
+      // If it's first time and not going to /about, redirect to /about
+      if (isFirstTime && nextUrl.pathname === '/') {
+        return new Response(null, {
+          status: 302,
+          headers: {
+            'Location': new URL('/about', nextUrl).toString(),
+            'Set-Cookie': 'first_time_visit=true; Path=/; Max-Age=31536000; SameSite=Lax'
+          }
+        });
+      }
 
       // console.log("middleware:", {isLoggedIn, isOnChat, isOnLogin});
 
@@ -21,8 +36,8 @@ export const authConfig = {
         return Response.redirect(new URL('/', nextUrl as unknown as URL));
       }
 
-      if (isOnLogin) {
-        return true; // Always allow access to login and info pages
+      if (isOnLogin || isOnAbout) {
+        return true; // Always allow access to login and about pages
       }
 
       if (isOnChat) {

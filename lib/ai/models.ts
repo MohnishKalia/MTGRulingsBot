@@ -1,6 +1,6 @@
 export const DEFAULT_CHAT_MODEL: string = 'chat-model-reasoning';
 
-interface ChatModel {
+export interface ChatModel {
   id: string;
   name: string;
   description: string;
