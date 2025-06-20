@@ -14,6 +14,8 @@ This bot fetches and displays rulings for Magic: The Gathering cards, helping pl
     - https://scryfall.com/docs/api/bulk-data
 - Magic comprehensive rules
     - https://magic.wizards.com/en/rules
+- Magic tournament rules
+    - https://wpn.wizards.com/en/rules-documents
 - (?)Rulings forums/databases for historical precedent
 
 ## Roadmap
@@ -25,6 +27,8 @@ This bot fetches and displays rulings for Magic: The Gathering cards, helping pl
 
 ## Quickstart
 
+### General setup
+
 1. Clone the repository:
     ```sh
     git clone https://github.com/MohnishKalia/MTGRulingsBot.git
@@ -33,13 +37,44 @@ This bot fetches and displays rulings for Magic: The Gathering cards, helping pl
     ```sh
     cd MTGRulingsBot
     ```
-3. Install dependencies:
+
+### Chatbot
+
+1. Install dependencies:
     ```sh
     npm install
     ```
-4. Run the bot:
+2. Run the bot:
     ```sh
     npm start
+    ```
+
+### Update Data
+
+Split into vector db indexes and postgres db.
+
+#### Update Indexes
+
+To update indexes, follow these steps:
+
+1. Remove all data in Upstash (through Vercel dashboard).
+2. Download the latest Magic Tournament Rules and upload the PDF into the `mtr` namespace.
+3. Run the following script to update the comprehensive rules `cr` and glossary `gls` namespaces:
+    ```sh
+    python ./scripts/mtg_cr.py
+    ```
+
+#### Update DB
+
+To update the database, follow these steps:
+
+1. Remove all data in Neon via Vercel (run the following SQL command):
+    ```sql
+    TRUNCATE TABLE "public"."oracle_card" CASCADE;
+    ```
+2. Run the following script to update the oracle cards `"public"."oracle_card"` and rulings `"public"."rulings"` tables:
+    ```sh
+    python ./scripts/mtg_oracle_cards.py
     ```
 
 ## Contributing
