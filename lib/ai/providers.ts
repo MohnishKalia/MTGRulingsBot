@@ -22,14 +22,14 @@ export const myProvider = isTestEnvironment
     })
   : customProvider({
       languageModels: {
-        'chat-model-small': openai('gpt-4o-mini'),
-        'chat-model-large': openai('gpt-4o-mini'),
-        'chat-model-reasoning': openai('o3-mini'),
-        'title-model': openai('gpt-4o-mini'),
-        'artifact-model': openai('gpt-4o-mini'),
+        'chat-model-small': openai('gpt-4.1-nano'),
+        'chat-model-large': openai('gpt-4.1-mini'),
+        'chat-model-reasoning': openai('o4-mini'),
+        'title-model': openai('gpt-4.1-nano'),
+        'artifact-model': openai('gpt-4.1-nano'),
       },
-      imageModels: {
-        'small-model': openai.image('dall-e-2'),
-        'large-model': openai.image('dall-e-3'),
-      },
+      // imageModels: {
+      //   'small-model': openai.image('dall-e-2'),
+      //   'large-model': openai.image('dall-e-3'),
+      // },
     });
