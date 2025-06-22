@@ -5,6 +5,24 @@ import { drizzle } from 'drizzle-orm/postgres-js';
 import { Index } from "@upstash/vector";
 import { cache } from 'react';
 
+if (!process.env.POSTGRES_URL) {
+    throw new Error('POSTGRES_URL environment variable is not defined');
+}
+if (!process.env.UPSTASH_VECTOR_REST_URL) {
+    throw new Error('UPSTASH_VECTOR_REST_URL environment variable is not defined');
+}
+if (!process.env.UPSTASH_VECTOR_REST_TOKEN) {
+    throw new Error('UPSTASH_VECTOR_REST_TOKEN environment variable is not defined');
+}
+
+const client = postgres(process.env.POSTGRES_URL);
+const db = drizzle(client);
+const index = new Index({
+    url: process.env.UPSTASH_VECTOR_REST_URL,
+    token: process.env.UPSTASH_VECTOR_REST_TOKEN,
+});
+
+export const revalidate = 86400;
 /**
  * Handles an HTTP GET request to retrieve database and vector store statistics.
  *
@@ -24,16 +42,6 @@ import { cache } from 'react';
  * @throws {Error} If any critical environment variable is missing, or if any required namespace is absent or empty, or if any database or index operation fails.
  */
 export const GET = cache(async function GET(): Promise<Response> {
-    // 'use cache';
-    if (!process.env.POSTGRES_URL) {
-        throw new Error('POSTGRES_URL environment variable is not defined');
-    }
-    const client = postgres(process.env.POSTGRES_URL);
-    const db = drizzle(client);
-    const index = new Index({
-        url: process.env.UPSTASH_VECTOR_REST_URL,
-        token: process.env.UPSTASH_VECTOR_REST_TOKEN,
-    });
     try {
         const oracleCardCountResult = await db
             .select({ count: count(oracleCard.id) })
