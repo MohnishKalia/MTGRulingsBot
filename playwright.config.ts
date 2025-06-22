@@ -91,6 +91,13 @@ export default defineConfig({
         storageState: 'playwright/.auth/session.json',
       },
     },
+    {
+      name: 'middleware',
+      testMatch: /middleware.test.ts/,
+      use: {
+        ...devices['Desktop Chrome'],
+      },
+    },
 
     // {
     //   name: 'firefox',
