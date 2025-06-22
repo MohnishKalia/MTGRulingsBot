@@ -32,7 +32,7 @@ export function AuthForm({
   const callbackUrl = searchParams.get('callbackUrl') || '/';
 
   const handleSignIn = async (provider: string) => {
-    await signIn(provider, { callbackUrl });
+    await signIn(provider, { redirectTo: callbackUrl });
   };
 
   return (
