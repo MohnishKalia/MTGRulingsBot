@@ -5,6 +5,7 @@ import numpy as np
 from upstash_vector import Index, Vector
 import logging
 import dotenv
+import requests
 
 """
 This script processes the Magic: The Gathering Comprehensive Rules document.
@@ -23,9 +24,24 @@ dotenv.load_dotenv('.env.local')
 # Configure logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
-# Load the data
-with open("./ref_files/MagicCompRules.txt", encoding="utf-8") as f:
-    cr_content = f.read()
+# Fetch the rules page to find the download link
+rules_page_url = "https://magic.wizards.com/en/rules"
+response = requests.get(rules_page_url)
+response.raise_for_status()
+page_content = response.text
+
+# Find the link to the comprehensive rules text file
+match = re.search(r'https://media\.wizards\.com/.+?/downloads/MagicCompRules.+?\.txt', page_content)
+if not match:
+    raise ValueError("Could not find the comprehensive rules text file download link on the page.")
+
+cr_url = match.group(0)
+logging.info(f"Found comprehensive rules download link: {cr_url}")
+
+# Download the comprehensive rules
+response = requests.get(cr_url)
+response.raise_for_status() # Raise an exception for bad status codes
+cr_content = response.text
 
 # Define markers for TOC, rules, and glossary sections
 toc_end_marker = "\nGlossary\n\nCredits\n\n"
@@ -168,6 +184,10 @@ logging.info(json.dumps(sorted_glossary_entries[-3:], indent=4))
 index = Index.from_env()
 logging.info("Index info:")
 logging.info(index.info())
+
+logging.info("Deleting existing namespaces...")
+index.delete(namespace="cr")
+index.delete(namespace="gls")
 
 # index.create(namespace="cr")
 logging.info("Indexing rules...")
