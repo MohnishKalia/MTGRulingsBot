@@ -103,54 +103,6 @@ const PurePreviewMessage = ({
               />
             )}
 
-            {(message.content || (reasoningParts && reasoningParts.length > 0)) && mode === 'view' && (
-              <div
-                data-testid="message-content"
-                className="flex flex-row gap-2 items-start"
-              >
-                {message.role === 'user' && !isReadonly && (
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <Button
-                        data-testid={`message-edit`}
-                        variant="ghost"
-                        className="px-2 h-fit rounded-full text-muted-foreground opacity-0 group-hover/message:opacity-100"
-                        onClick={() => {
-                          setMode('edit');
-                        }}
-                      >
-                        <PencilEditIcon />
-                      </Button>
-                    </TooltipTrigger>
-                    <TooltipContent>Edit message</TooltipContent>
-                  </Tooltip>
-                )}
-
-                <div
-                  className={cn('flex flex-col gap-4', {
-                    'bg-primary text-primary-foreground px-3 py-2 rounded-xl':
-                      message.role === 'user',
-                  })}
-                >
-                  <Markdown>{message.content as string}</Markdown>
-                </div>
-              </div>
-            )}
-
-            {message.content && mode === 'edit' && (
-              <div className="flex flex-row gap-2 items-start">
-                <div className="size-8" />
-
-                <MessageEditor
-                  key={message.id}
-                  message={message}
-                  setMode={setMode}
-                  setMessages={setMessages}
-                  reload={reload}
-                />
-              </div>
-            )}
-
             {toolInvocations && toolInvocations.length > 0 && (
               <div className="flex flex-col gap-4">
                 {toolInvocations.map((toolInvocation) => {
@@ -313,6 +265,54 @@ const PurePreviewMessage = ({
               </div>
             )}
 
+            {(message.content || (reasoningParts && reasoningParts.length > 0)) && mode === 'view' && (
+              <div
+                data-testid="message-content"
+                className="flex flex-row gap-2 items-start"
+              >
+                {message.role === 'user' && !isReadonly && (
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button
+                        data-testid={`message-edit`}
+                        variant="ghost"
+                        className="px-2 h-fit rounded-full text-muted-foreground opacity-0 group-hover/message:opacity-100"
+                        onClick={() => {
+                          setMode('edit');
+                        }}
+                      >
+                        <PencilEditIcon />
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent>Edit message</TooltipContent>
+                  </Tooltip>
+                )}
+
+                <div
+                  className={cn('flex flex-col gap-4', {
+                    'bg-primary text-primary-foreground px-3 py-2 rounded-xl':
+                      message.role === 'user',
+                  })}
+                >
+                  <Markdown>{message.content as string}</Markdown>
+                </div>
+              </div>
+            )}
+
+            {message.content && mode === 'edit' && (
+              <div className="flex flex-row gap-2 items-start">
+                <div className="size-8" />
+
+                <MessageEditor
+                  key={message.id}
+                  message={message}
+                  setMode={setMode}
+                  setMessages={setMessages}
+                  reload={reload}
+                />
+              </div>
+            )}
+            
             {!isReadonly && (
               <MessageActions
                 key={`action-${message.id}`}

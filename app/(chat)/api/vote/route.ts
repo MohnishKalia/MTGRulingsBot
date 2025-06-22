@@ -1,5 +1,12 @@
 import { auth } from '@/app/(auth)/auth';
 import { getChatById, getVotesByChatId, voteMessage } from '@/lib/db/queries';
+import type { Session } from 'next-auth';
+
+function isUserAuthenticated(session: Session | null):
+  session is Session & { user: { email?: string; name?: string; id?: string } } {
+  return !!(session && session.user &&
+    (session.user.email || session.user.name || session.user.id));
+}
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
@@ -11,7 +18,8 @@ export async function GET(request: Request) {
 
   const session = await auth();
 
-  if (!session || !session.user || !session.user.email) {
+  // if no session, user, or email/name/id, return unauthorized
+  if (!isUserAuthenticated(session)) {
     return new Response('Unauthorized', { status: 401 });
   }
 
@@ -44,7 +52,7 @@ export async function PATCH(request: Request) {
 
   const session = await auth();
 
-  if (!session || !session.user || !session.user.email) {
+  if (!isUserAuthenticated(session)) {
     return new Response('Unauthorized', { status: 401 });
   }
 

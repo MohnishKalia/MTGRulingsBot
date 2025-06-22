@@ -98,77 +98,86 @@ DB_URL = os.getenv("DATABASE_URL")
 # Connect to the database
 with psycopg2.connect(DB_URL) as conn, conn.cursor() as cur:
     # Check connection
-    logging.info("Connection successful!")
-    cur.execute("SELECT NOW();")
-    result = cur.fetchone()
-    logging.info("Current Time:")
-    logging.info(result)
+    cur.execute("SELECT version();")
+    logging.info(f"Connected to: {cur.fetchone()}")
 
-    # fail out if oracle_card table doesnt exist
-    cur.execute("SELECT EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'oracle_card');")
-    if not cur.fetchone()[0]:
-        raise ValueError("oracle_card table does not exist.")
-    # fail out if ruling table doesnt exist
-    cur.execute("SELECT EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'ruling');")
-    if not cur.fetchone()[0]:
-        raise ValueError("ruling table does not exist.")
-    logging.info("Tables checked.")
+    # Create temporary tables
+    cur.execute("""
+        CREATE TABLE oracle_cards_new (
+            object TEXT,
+            oracle_id UUID PRIMARY KEY,
+            name TEXT,
+            released_at DATE,
+            scryfall_uri TEXT,
+            layout TEXT,
+            image_uris JSONB,
+            mana_cost TEXT,
+            cmc REAL,
+            type_line TEXT,
+            card_faces JSONB,
+            oracle_text TEXT,
+            power TEXT,
+            toughness TEXT,
+            colors TEXT[],
+            keywords TEXT[],
+            games TEXT[],
+            edhrec_rank INTEGER
+        );
+    """)
+    logging.info("Created oracle_cards_new table")
 
-    # insert oracle cards
-    execute_batch(cur, 
-                """INSERT INTO oracle_card (
-                    oracle_id,
-                    name,
-                    released_at,
-                    scryfall_uri,
-                    layout,
-                    image_uris,
-                    mana_cost,
-                    cmc,
-                    type_line,
-                    card_faces,
-                    oracle_text,
-                    power,
-                    toughness,
-                    colors,
-                    keywords,
-                    games,
-                    edhrec_rank
-                ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)""", 
-                [(
-                    c.oracle_id.hex, 
-                    c.name, 
-                    c.released_at, 
-                    c.scryfall_uri, 
-                    c.layout, 
-                    json.dumps(c.image_uris) if c.image_uris else None, 
-                    c.mana_cost, 
-                    c.cmc, 
-                    c.type_line, 
-                    json.dumps(c.card_faces) if c.card_faces else None, 
-                    c.oracle_text, 
-                    c.power, 
-                    c.toughness, 
-                    c.colors, 
-                    c.keywords, 
-                    c.games, 
-                    c.edhrec_rank
-                ) for c in cards])
-    logging.info("Oracle cards inserted.")
+    cur.execute("""
+        CREATE TABLE rulings_new (
+            object TEXT,
+            oracle_id UUID,
+            source TEXT,
+            published_at DATE,
+            comment TEXT
+        );
+    """)
+    logging.info("Created rulings_new table")
 
-    # insert rulings
-    execute_batch(cur, 
-                """INSERT INTO ruling (oracle_id,
-                    source,
-                    published_at,
-                    comment
-                ) VALUES (%s, %s, %s, %s)""", 
-                [(
-                    r.oracle_id.hex,
-                    r.source,
-                    r.published_at,
-                    r.comment
-                ) for r in rulings])
-    logging.info("Rulings inserted.")
-# Close the cursor and connection
-logging.info("Connection closed.")
+    # Insert data into temporary tables
+    execute_batch(cur, """
+        INSERT INTO oracle_cards_new (
+            object, oracle_id, name, released_at, scryfall_uri, layout, image_uris,
+            mana_cost, cmc, type_line, card_faces, oracle_text, power, toughness,
+            colors, keywords, games, edhrec_rank
+        ) VALUES (
+            %(object)s, %(oracle_id)s, %(name)s, %(released_at)s, %(scryfall_uri)s,
+            %(layout)s, %(image_uris)s, %(mana_cost)s, %(cmc)s, %(type_line)s,
+            %(card_faces)s, %(oracle_text)s, %(power)s, %(toughness)s, %(colors)s,
+            %(keywords)s, %(games)s, %(edhrec_rank)s
+        );
+    """, [c.model_dump(mode='json') for c in cards])
+    logging.info("Inserted data into oracle_cards_new")
+
+    execute_batch(cur, """
+        INSERT INTO rulings_new (
+            object, oracle_id, source, published_at, comment
+        ) VALUES (
+            %(object)s, %(oracle_id)s, %(source)s, %(published_at)s, %(comment)s
+        );
+    """, [r.model_dump(mode='json') for r in rulings])
+    logging.info("Inserted data into rulings_new")
+
+    # Swap tables
+    cur.execute("DROP TABLE IF EXISTS rulings, oracle_cards CASCADE;")
+    logging.info("Dropped old tables")
+
+    cur.execute("ALTER TABLE oracle_cards_new RENAME TO oracle_cards;")
+    logging.info("Renamed oracle_cards_new to oracle_cards")
+
+    cur.execute("ALTER TABLE rulings_new RENAME TO rulings;")
+    logging.info("Renamed rulings_new to rulings")
+
+    cur.execute("""
+        ALTER TABLE rulings
+        ADD CONSTRAINT rulings_oracle_id_fkey
+        FOREIGN KEY (oracle_id) REFERENCES oracle_cards(oracle_id);
+    """)
+    logging.info("Recreated foreign key constraint")
+
+    conn.commit()
+
+logging.info("Database update complete.")
