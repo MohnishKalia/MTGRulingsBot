@@ -79,7 +79,7 @@ To update the database, follow these steps:
 
 ## Contributing
 
-Contributions are welcome! Please open an issue or submit a pull request.
+Contributions are welcome! For more details on how to contribute, please see our [contributing guidelines](CONTRIBUTING.md).
 
 ## License
 
