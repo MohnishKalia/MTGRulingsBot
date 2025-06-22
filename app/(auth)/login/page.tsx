@@ -1,6 +1,6 @@
 'use client';
 import { useRouter } from 'next/navigation';
-import { useActionState, useEffect, useState } from 'react';
+import { useActionState, useEffect, useState, Suspense } from 'react';
 import { toast } from '@/components/toast';
 
 import { AuthForm } from '@/components/auth-form';
@@ -56,9 +56,11 @@ export default function Page() {
             Use your credentials to sign in
           </p>
         </div>
-        <AuthForm action={handleSubmit} defaultEmail={email}>
-          <SubmitButton isSuccessful={isSuccessful}>Sign in/up</SubmitButton>
-        </AuthForm>
+        <Suspense fallback={<div>Loading...</div>}>
+          <AuthForm action={handleSubmit} defaultEmail={email}>
+            <SubmitButton isSuccessful={isSuccessful}>Sign in/up</SubmitButton>
+          </AuthForm>
+        </Suspense>
       </div>
     </div>
   );
