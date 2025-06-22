@@ -16,11 +16,6 @@ interface SuggestedActionsProps {
 function PureSuggestedActions({ chatId, append }: SuggestedActionsProps) {
   const suggestedActions = [
     {
-      title: 'How many mulligans',
-      label: 'can I take in Commander?',
-      action: 'How many mulligans can I take in a multiplayer format like eg. Commander?',
-    },
-    {
       title: 'Explain the combo',
       label: 'between 2 popular cards',
       action: `What is the combo between between "Niv-Mizzet, Parun" and an attached "Curiosity"?`,
@@ -29,6 +24,11 @@ function PureSuggestedActions({ chatId, append }: SuggestedActionsProps) {
       title: 'How does Trample',
       label: `work with Deathtouch?`,
       action: `If an attacking 5/5 creature I control with Trample and Deathtouch is blocked by two 2/2 creatures, how much damage goes through?`,
+    },
+    {
+      title: 'How many mulligans',
+      label: 'can I take in Commander?',
+      action: 'How many mulligans can I take in a multiplayer format like eg. Commander?',
     },
     {
       title: 'Am I allowed to',
