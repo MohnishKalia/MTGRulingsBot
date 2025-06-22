@@ -54,7 +54,11 @@ export async function POST(request: Request) {
     });
 
     if (messageCount > entitlementsByUserType[userType].maxMessagesPerDay) {
-      return new Response('Rate limit exceeded', { status: 429 });
+      const { maxMessagesPerDay } = entitlementsByUserType[userType];
+      return new Response(
+        `You have reached your daily limit of ${maxMessagesPerDay} questions. You can have your friends to sign up for more q's!`,
+        { status: 429 },
+      );
     }
 
     const userMessage = getMostRecentUserMessage(messages);
