@@ -37,11 +37,6 @@ export const {
       RedditProvider({
         clientId: process.env.REDDIT_CLIENT_ID,
         clientSecret: process.env.REDDIT_CLIENT_SECRET,
-        authorization: {
-          params: {
-            duration: 'permanent',
-          },
-        },
       }),
       ResendProvider({
         apiKey: process.env.AUTH_RESEND_KEY,

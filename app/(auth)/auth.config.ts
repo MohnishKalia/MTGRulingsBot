@@ -1,4 +1,5 @@
 import type { NextAuthConfig } from 'next-auth';
+import { NextResponse } from 'next/server';
 
 export const authConfig = {
   pages: {
@@ -21,13 +22,13 @@ export const authConfig = {
       
       // If it's first time and not going to /about, redirect to /about
       if (isFirstTime && nextUrl.pathname === '/') {
-        return new Response(null, {
-          status: 302,
-          headers: {
-            'Location': new URL('/about', nextUrl).toString(),
-            'Set-Cookie': 'first_time_visit=true; Path=/; Max-Age=31536000; SameSite=Lax'
-          }
+        const response = NextResponse.redirect(new URL('/about', nextUrl));
+        response.cookies.set('first_time_visit', 'true', {
+          path: '/',
+          maxAge: 31536000, // 1 year
+          sameSite: 'lax'
         });
+        return response;
       }
 
       // console.log("middleware:", {isLoggedIn, isOnChat, isOnLogin});
