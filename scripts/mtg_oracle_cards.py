@@ -162,13 +162,21 @@ with psycopg2.connect(DB_URL) as conn, conn.cursor() as cur:
     logging.info("Inserted data into rulings_new")
 
     # Swap tables
-    cur.execute("DROP TABLE IF EXISTS oracle_cards;")
-    cur.execute("ALTER TABLE oracle_cards_new RENAME TO oracle_cards;")
-    logging.info("Swapped oracle_cards table")
+    cur.execute("DROP TABLE IF EXISTS rulings, oracle_cards CASCADE;")
+    logging.info("Dropped old tables")
 
-    cur.execute("DROP TABLE IF EXISTS rulings;")
+    cur.execute("ALTER TABLE oracle_cards_new RENAME TO oracle_cards;")
+    logging.info("Renamed oracle_cards_new to oracle_cards")
+
     cur.execute("ALTER TABLE rulings_new RENAME TO rulings;")
-    logging.info("Swapped rulings table")
+    logging.info("Renamed rulings_new to rulings")
+
+    cur.execute("""
+        ALTER TABLE rulings
+        ADD CONSTRAINT rulings_oracle_id_fkey
+        FOREIGN KEY (oracle_id) REFERENCES oracle_cards(oracle_id);
+    """)
+    logging.info("Recreated foreign key constraint")
 
     conn.commit()
 
