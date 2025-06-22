@@ -56,7 +56,7 @@ export async function POST(request: Request) {
     if (messageCount > entitlementsByUserType[userType].maxMessagesPerDay) {
       const { maxMessagesPerDay } = entitlementsByUserType[userType];
       return new Response(
-        `You have reached your daily limit of ${maxMessagesPerDay} questions. You can have your friends to sign up for more q's!`,
+        `You have reached your daily limit of ${maxMessagesPerDay} questions. Please ask a friend to sign up for additional access.`,
         { status: 429 },
       );
     }
