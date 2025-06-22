@@ -57,8 +57,12 @@ export function Chat({
   const hasResponsesToVoteOn = messages.some((m) => m.role === 'assistant');
 
   const { data: votes } = useSWR<Array<Vote>>(
-    hasResponsesToVoteOn ? `/api/vote?chatId=${id}` : null,
-    fetcher,
+    hasResponsesToVoteOn && !isReadonly ? `/api/vote?chatId=${id}` : null,
+    (url) => fetch(url).then((res) => res.json()),
+    {
+      refreshInterval: 3000,
+      revalidateOnFocus: false,
+    },
   );
 
   const [attachments, setAttachments] = useState<Array<Attachment>>([]);

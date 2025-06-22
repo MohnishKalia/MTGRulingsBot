@@ -143,7 +143,9 @@ export async function POST(request: Request) {
           sendReasoning: true,
         });
       },
-      onError: () => {
+      onError: (e) => {
+        console.error('An error occurred while processing the request');
+        console.error(e);
         return 'Oops, an error occured!';
       },
     });

@@ -3,6 +3,7 @@ import { oracleCard, ruling } from '@/lib/db/schema';
 import postgres from 'postgres';
 import { drizzle } from 'drizzle-orm/postgres-js';
 import { Index } from "@upstash/vector";
+import { cache } from 'react';
 
 /**
  * Handles an HTTP GET request to retrieve database and vector store statistics.
@@ -22,7 +23,7 @@ import { Index } from "@upstash/vector";
  *
  * @throws {Error} If any critical environment variable is missing, or if any required namespace is absent or empty, or if any database or index operation fails.
  */
-export async function GET(): Promise<Response> {
+export const GET = cache(async function GET(): Promise<Response> {
     // 'use cache';
     if (!process.env.POSTGRES_URL) {
         throw new Error('POSTGRES_URL environment variable is not defined');
@@ -79,4 +80,4 @@ export async function GET(): Promise<Response> {
         console.error(error);
         return new Response('Internal Server Error', { status: 500 });
     }
-}
+});
