@@ -30,16 +30,16 @@ export async function generateMetadata(
   }
 
   const firstUserMessage = messages.find(
-    (m: any) => m.role === 'user' && typeof m.content === 'string'
+    m => m.role === 'user' && typeof m.content === 'string'
   );
   const firstAssistantMessage = [...messages]
     .reverse()
     .find(
-      (m: any) =>
+      m =>
         m.role === 'assistant' &&
         Array.isArray(m.content) &&
         m.content.some(
-          (c: any) => c.type === 'text'
+          c => c.type === 'text'
         )
     );
 

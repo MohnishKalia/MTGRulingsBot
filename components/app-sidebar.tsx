@@ -29,14 +29,14 @@ export function AppSidebar({ user }: { user: User | undefined }) {
         <SidebarMenu>
           <div className="flex flex-row justify-between items-center">
             <Link
-              href="/"
+              href={typeof window !== 'undefined' ? window.location.origin : '/'}
               onClick={() => {
-                setOpenMobile(false);
+              setOpenMobile(false);
               }}
               className="flex flex-row gap-3 items-center"
             >
               <span className="text-lg font-semibold px-2 hover:bg-muted rounded-md cursor-pointer">
-                rules.fyi
+              rules.fyi
               </span>
             </Link>
             <Tooltip>
