@@ -57,7 +57,7 @@ toc_end_marker = "\nGlossary\n\nCredits\n\n"
 rules_end_marker = ".\n\nGlossary\n\n"
 gloss_end_marker = ".\n\n\nCredits"
 
-print(f"test: {cr_content[:5000]}")  # Print first 1000 characters of the content for debugging
+# Debugging output removed as TOC extraction is implemented.
 
 # Extract TOC entries
 toc_pattern = re.compile(f"{re.escape(toc_start_marker)}(.*?){re.escape(toc_end_marker)}", re.DOTALL)
