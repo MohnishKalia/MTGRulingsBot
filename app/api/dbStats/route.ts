@@ -62,6 +62,7 @@ export const GET = cache(async function GET(): Promise<Response> {
                 vectorStats[ns] = { vectorCount: 0, pendingVectorCount: 0 };
             } else if (typeof vectorStats[ns].vectorCount !== 'number') {
                 console.error(`Namespace ${ns} vectorCount is not a number, defaulting to 0`);
+                vectorStats[ns].vectorCount = 0;
             }
         }
         return new Response(
