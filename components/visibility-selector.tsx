@@ -71,11 +71,11 @@ export function VisibilitySelector({
       >
         <Button
           variant="outline"
-          className="hidden md:flex md:px-2 md:h-[34px]"
+          className="flex px-2 md:h-[34]"
         >
           {selectedVisibility?.icon}
-          {selectedVisibility?.label}
-          <ChevronDownIcon />
+          <span className="hidden md:inline">{selectedVisibility?.label}</span>
+          <ChevronDownIcon size={16} />
         </Button>
       </DropdownMenuTrigger>
 
