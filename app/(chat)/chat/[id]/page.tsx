@@ -18,14 +18,17 @@ export async function generateMetadata(
   _parent: ResolvingMetadata
 ): Promise<Metadata> {
   const MAX_DESCRIPTION_LENGTH = 130;
-  
+
   const id = (await params).id || '';
-  const chat = await getChatById({ id });
+  // Parallelize fetching chat and messages
+  const [chat, messages] = await Promise.all([
+    getChatById({ id }),
+    getMessagesByChatId({ id })
+  ]);
   if (!chat) {
     return {};
   }
 
-  const messages = await getMessagesByChatId({ id });
   const firstUserMessage = messages.find(
     m => m.role === 'user' && typeof m.content === 'string'
   );
@@ -36,7 +39,7 @@ export async function generateMetadata(
         m.role === 'assistant' &&
         Array.isArray(m.content) &&
         m.content.some(
-          (c: any) => c.type === 'text'
+          c => c.type === 'text'
         )
     );
 

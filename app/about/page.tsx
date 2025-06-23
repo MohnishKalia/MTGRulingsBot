@@ -10,13 +10,21 @@ export const metadata = {
 };
 
 export default function About() {
+  const origin = typeof window !== "undefined" ? window.location.origin : "";
+  const homeLink = `${origin}/`;
+  
   return (
     <>
       {/* Navigation Header */}
       <header className="fixed top-0 w-full z-50 border-b border-border bg-background/80 backdrop-blur-sm">
         <div className="flex justify-center">
           <div className="container mx-auto flex items-center justify-between h-16 px-4">
-            <span className="text-xl font-bold text-foreground">rules.fyi</span>
+            <Link
+              href={homeLink}
+              className="text-xl font-bold text-foreground"
+            >
+              rules.fyi
+            </Link>
             <Button variant="ghost" size="sm" asChild>
               <Link 
                 href="https://github.com/MohnishKalia/MTGRulingsBot/issues"
@@ -57,7 +65,7 @@ export default function About() {
             </p>
             <div className="mt-10 flex items-center justify-center gap-x-6">
               <Button asChild size="lg" className="bg-purple-600 hover:bg-purple-700 dark:bg-purple-500 dark:hover:bg-purple-600">
-                <Link href="/">
+                <Link href={homeLink}>
                   Try it now <ArrowRight className="ml-2 size-4" />
                 </Link>
               </Button>
