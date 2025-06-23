@@ -43,49 +43,74 @@ export const revalidate = 86400;
  */
 export const GET = cache(async function GET(): Promise<Response> {
     try {
-        const oracleCardCountResult = await db
-            .select({ count: count(oracleCard.id) })
-            .from(oracleCard);
-        const rulingCountResult = await db
-            .select({ count: count(ruling.id) })
-            .from(ruling);
-        const recentOracleCardResult = await db
-            .select({ releasedAt: max(oracleCard.releasedAt) })
-            .from(oracleCard);
-        
+        const [oracleCardStats, rulingCountResult, info] = await Promise.all([
+            db.select({ count: count(oracleCard.id), releasedAt: max(oracleCard.releasedAt) }).from(oracleCard),
+            db.select({ count: count(ruling.id) }).from(ruling),
+            index.info()
+        ]);
         const dbStats = {
-            oracleCardCount: Number(oracleCardCountResult[0]?.count ?? 0),
+            oracleCardCount: Number(oracleCardStats[0]?.count ?? 0),
             rulingCount: Number(rulingCountResult[0]?.count ?? 0),
-            recentOracleCardDate: recentOracleCardResult[0]?.releasedAt ?? null,
+            recentOracleCardDate: oracleCardStats[0]?.releasedAt ?? null,
         };
-        
-        const info = await index.info();
         const vectorStats = info.namespaces;
-
         const requiredNamespaces = ["gls", "cr", "mtr"];
+        // Instead of throwing, default to 0 if missing/empty
         for (const ns of requiredNamespaces) {
-            const nsData = vectorStats[ns];
-            if (!nsData) {
-                throw new Error(`Namespace "${ns}" is missing`);
-            }
-            const isEmpty = nsData.vectorCount === 0;
-            if (isEmpty) {
-                throw new Error(`Namespace "${ns}" is empty or has no data`);
+            if (!vectorStats[ns]) {
+                console.error(`Namespace ${ns} is missing, defaulting to 0`);
+                vectorStats[ns] = { vectorCount: 0 };
+            } else if (typeof vectorStats[ns].vectorCount !== 'number') {
+                console.error(`Namespace ${ns} vectorCount is not a number, defaulting to 0`);
+                vectorStats[ns].vectorCount = 0;
             }
         }
-
         return new Response(
             JSON.stringify({
                 dbStats,
                 vectorStats,
-            }),
+            } satisfies DbStatsResponse),
             {
                 status: 200,
                 headers: { 'Content-Type': 'application/json' },
             }
         );
     } catch (error) {
-        console.error(error);
-        return new Response('Internal Server Error', { status: 500 });
+        // Log error to console, but return default 0s for all fields
+        console.error('dbStats error:', error);
+        return new Response(
+            JSON.stringify({
+                dbStats: {
+                    oracleCardCount: 0,
+                    rulingCount: 0,
+                    recentOracleCardDate: null,
+                },
+                vectorStats: {
+                    mtr: { vectorCount: 0 },
+                    cr: { vectorCount: 0 },
+                    gls: { vectorCount: 0 },
+                },
+            } satisfies DbStatsResponse),
+            {
+                status: 200,
+                headers: { 'Content-Type': 'application/json' },
+            }
+        );
     }
 });
+
+// Typescript model for the dbStats API response
+export type DbStatsResponse = {
+  dbStats: {
+    oracleCardCount: number;
+    rulingCount: number;
+    recentOracleCardDate: string | null;
+  };
+  vectorStats: {
+    mtr: { vectorCount: number };
+    cr: { vectorCount: number };
+    gls: { vectorCount: number };
+    // Allow for possible extra namespaces
+    [key: string]: { vectorCount: number };
+  };
+};

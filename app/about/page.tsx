@@ -57,7 +57,7 @@ export default function About() {
             </p>
             <div className="mt-10 flex items-center justify-center gap-x-6">
               <Button asChild size="lg" className="bg-purple-600 hover:bg-purple-700 dark:bg-purple-500 dark:hover:bg-purple-600">
-                <Link href="/">
+                <Link prefetch={false} href="/">
                   Try it now <ArrowRight className="ml-2 size-4" />
                 </Link>
               </Button>
