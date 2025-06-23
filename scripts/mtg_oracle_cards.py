@@ -10,7 +10,7 @@ import logging
 import os
 import requests
 
-dotenv.load_dotenv('.env.local')
+dotenv.load_dotenv(os.path.join(os.path.dirname(__file__), '..', '.env.local'))
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
@@ -137,6 +137,19 @@ with psycopg2.connect(DB_URL) as conn, conn.cursor() as cur:
     """)
     logging.info("Created rulings_new table")
 
+    def card_to_db_dict(card):
+        d = card.model_dump(mode='json')
+        # Convert dict fields to JSON strings for JSONB columns
+        if d.get('image_uris') is not None:
+            d['image_uris'] = json.dumps(d['image_uris'])
+        if d.get('card_faces') is not None:
+            d['card_faces'] = json.dumps(d['card_faces'])
+        return d
+
+    def ruling_to_db_dict(ruling):
+        d = ruling.model_dump(mode='json')
+        return d
+
     # Insert data into temporary tables
     execute_batch(cur, """
         INSERT INTO oracle_cards_new (
@@ -149,7 +162,7 @@ with psycopg2.connect(DB_URL) as conn, conn.cursor() as cur:
             %(card_faces)s, %(oracle_text)s, %(power)s, %(toughness)s, %(colors)s,
             %(keywords)s, %(games)s, %(edhrec_rank)s
         );
-    """, [c.model_dump(mode='json') for c in cards])
+    """, [card_to_db_dict(c) for c in cards])
     logging.info("Inserted data into oracle_cards_new")
 
     execute_batch(cur, """
@@ -158,7 +171,7 @@ with psycopg2.connect(DB_URL) as conn, conn.cursor() as cur:
         ) VALUES (
             %(object)s, %(oracle_id)s, %(source)s, %(published_at)s, %(comment)s
         );
-    """, [r.model_dump(mode='json') for r in rulings])
+    """, [ruling_to_db_dict(r) for r in rulings])
     logging.info("Inserted data into rulings_new")
 
     # Swap tables

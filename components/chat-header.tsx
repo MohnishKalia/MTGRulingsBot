@@ -31,6 +31,8 @@ function PureChatHeader({
     <header className="flex sticky top-0 bg-background py-1.5 items-center px-2 md:px-2 gap-2">
       <SidebarToggle />
 
+      {/* NOTE: if gap in mobile display, probably due to btns not allowing smaller widths */}
+
       {(!open || windowWidth < 768) && (
         <Tooltip>
           <TooltipTrigger asChild>
@@ -43,7 +45,8 @@ function PureChatHeader({
               }}
             >
               <PlusIcon />
-              <span className="md:sr-only">New Chat</span>
+                <span className="block xs:hidden">New</span>
+                <span className="hidden xs:block md:sr-only">New Chat</span>
             </Button>
           </TooltipTrigger>
           <TooltipContent>New Chat</TooltipContent>
