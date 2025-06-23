@@ -10,6 +10,9 @@ export const metadata = {
 };
 
 export default function About() {
+  const origin = typeof window !== "undefined" ? window.location.origin : "";
+  const homeLink = `${origin}/`;
+  
   return (
     <>
       {/* Navigation Header */}
@@ -17,7 +20,7 @@ export default function About() {
         <div className="flex justify-center">
           <div className="container mx-auto flex items-center justify-between h-16 px-4">
             <Link
-              href={typeof window !== "undefined" ? window.location.origin + "/" : "/"}
+              href={homeLink}
               className="text-xl font-bold text-foreground"
             >
               rules.fyi
@@ -62,7 +65,7 @@ export default function About() {
             </p>
             <div className="mt-10 flex items-center justify-center gap-x-6">
               <Button asChild size="lg" className="bg-purple-600 hover:bg-purple-700 dark:bg-purple-500 dark:hover:bg-purple-600">
-                <Link href={`${typeof window !== "undefined" ? window.location.origin : ""}/`}>
+                <Link href={homeLink}>
                   Try it now <ArrowRight className="ml-2 size-4" />
                 </Link>
               </Button>
