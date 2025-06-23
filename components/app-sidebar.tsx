@@ -22,6 +22,8 @@ import { Github } from 'lucide-react';
 export function AppSidebar({ user }: { user: User | undefined }) {
   const router = useRouter();
   const { setOpenMobile } = useSidebar();
+  const origin = typeof window !== "undefined" ? window.location.origin : "";
+  const homeLink = `${origin}/`;
 
   return (
     <Sidebar className="group-data-[side=left]:border-r-0">
@@ -29,14 +31,14 @@ export function AppSidebar({ user }: { user: User | undefined }) {
         <SidebarMenu>
           <div className="flex flex-row justify-between items-center">
             <Link
-              href="/"
+              href={homeLink}
               onClick={() => {
-                setOpenMobile(false);
+              setOpenMobile(false);
               }}
               className="flex flex-row gap-3 items-center"
             >
               <span className="text-lg font-semibold px-2 hover:bg-muted rounded-md cursor-pointer">
-                rules.fyi
+              rules.fyi
               </span>
             </Link>
             <Tooltip>
