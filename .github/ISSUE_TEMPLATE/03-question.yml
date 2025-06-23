@@ -1,0 +1,48 @@
+name: Question or Support
+description: Ask a question or get help with using the MTG Rulings Bot
+title: "[Question]: "
+labels: ["question"]
+assignees: []
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reaching out! Please provide details about your question or the help you need.
+  - type: textarea
+    id: question
+    attributes:
+      label: Your Question
+      description: What would you like to know or what help do you need?
+      placeholder: Please describe your question in detail...
+    validations:
+      required: true
+  - type: textarea
+    id: context
+    attributes:
+      label: Context
+      description: Please provide any relevant context, such as what you were trying to do, error messages, etc.
+      placeholder: Additional context that might help us understand your question...
+  - type: dropdown
+    id: category
+    attributes:
+      label: Question Category
+      description: What type of question is this?
+      options:
+        - MTG Rules/Mechanics
+        - Bot Usage/Commands
+        - Installation/Setup
+        - API/Integration
+        - General Usage
+        - Other
+    validations:
+      required: true
+  - type: checkboxes
+    id: terms
+    attributes:
+      label: Checklist
+      description: Please confirm before submitting your question.
+      options:
+        - label: I have searched existing issues and discussions for similar questions
+          required: true
+        - label: I have provided sufficient context for my question
+          required: true
