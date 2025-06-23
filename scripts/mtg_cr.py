@@ -6,6 +6,8 @@ from upstash_vector import Index, Vector
 import logging
 import dotenv
 import requests
+import tempfile
+import os
 
 """
 This script processes the Magic: The Gathering Comprehensive Rules document.
@@ -19,7 +21,11 @@ This script assumes:
 - no major layout shifts in the document (*_end_marker)
 """
 
-dotenv.load_dotenv('.env.local')
+dotenv.load_dotenv(os.path.join(os.path.dirname(__file__), '..', '.env.local'))
+
+# Create ref_files directory if it doesn't exist
+ref_dir = os.path.join(os.path.dirname(__file__), "..", "ref_files")
+os.makedirs(ref_dir, exist_ok=True)
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -39,17 +45,22 @@ cr_url = match.group(0)
 logging.info(f"Found comprehensive rules download link: {cr_url}")
 
 # Download the comprehensive rules
+#utf8 bom
 response = requests.get(cr_url)
 response.raise_for_status() # Raise an exception for bad status codes
-cr_content = response.text
+cr_content = response.content.decode('utf-8-sig').replace("\r\n", "\n")  # Normalize line endings to LF for consistency
 
 # Define markers for TOC, rules, and glossary sections
+# Only handle CRLF line endings in markers
+toc_start_marker = "Contents\n"
 toc_end_marker = "\nGlossary\n\nCredits\n\n"
 rules_end_marker = ".\n\nGlossary\n\n"
 gloss_end_marker = ".\n\n\nCredits"
 
+print(f"test: {cr_content[:5000]}")  # Print first 1000 characters of the content for debugging
+
 # Extract TOC entries
-toc_pattern = re.compile(f"^(.*?){re.escape(toc_end_marker)}", re.DOTALL)
+toc_pattern = re.compile(f"{re.escape(toc_start_marker)}(.*?){re.escape(toc_end_marker)}", re.DOTALL)
 toc_match = toc_pattern.search(cr_content)
 if not toc_match:
     raise AssertionError("Beginning of TOC document not found.")
@@ -58,8 +69,11 @@ if not toc_extracted_text:
     raise AssertionError("Beginning of TOC document content empty.")
 logging.info("TOC entries:")
 logging.info(toc_extracted_text)
-with open("./ref_files/toc_entries.txt", "w") as f:
+with tempfile.NamedTemporaryFile(mode='w', delete=False, suffix=".txt", dir=ref_dir, encoding='utf-8') as f:
     f.write(toc_extracted_text)
+    logging.info(f"TOC entries written to temporary file: {f.name}")
+
+# raise AssertionError("TOC entries extraction not implemented yet.")
 
 # Extract rules entries
 rules_pattern = re.compile(f"{re.escape(toc_end_marker)}(.*?){re.escape(rules_end_marker)}", re.DOTALL)
@@ -163,7 +177,9 @@ logging.info(json.dumps(sorted_grouped_rules[-3:], indent=4))
 RULES_MAX_LENGTH = 4000
 logging.info(f"Grouped rules with length over {RULES_MAX_LENGTH}:")
 logging.info(json.dumps([re.search(r"\n\n([\w\.]+) ", r[0]).group(1).strip() for r in sorted_grouped_rules if r[1] > RULES_MAX_LENGTH], indent=4))
-json.dump(grouped_rules, open("./ref_files/grouped_rules.json", "w"), indent=4)
+with tempfile.NamedTemporaryFile(mode='w', delete=False, suffix=".json", dir=ref_dir, encoding='utf-8') as f:
+    json.dump(grouped_rules, f, indent=4)
+    logging.info(f"Grouped rules written to temporary file: {f.name}")
 
 # Extract glossary entries
 gloss_pattern = re.compile(f"{re.escape(rules_end_marker)}(.*?){re.escape(gloss_end_marker)}", re.DOTALL)
@@ -186,8 +202,8 @@ logging.info("Index info:")
 logging.info(index.info())
 
 logging.info("Deleting existing namespaces...")
-index.delete(namespace="cr")
-index.delete(namespace="gls")
+index.reset(namespace="cr")
+index.reset(namespace="gls")
 
 # index.create(namespace="cr")
 logging.info("Indexing rules...")
