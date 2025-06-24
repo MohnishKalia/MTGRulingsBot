@@ -22,7 +22,6 @@ const index = new Index({
     token: process.env.UPSTASH_VECTOR_REST_TOKEN,
 });
 
-export const revalidate = 86400;
 /**
  * Handles an HTTP GET request to retrieve database and vector store statistics.
  *

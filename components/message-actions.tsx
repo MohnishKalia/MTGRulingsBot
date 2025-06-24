@@ -30,7 +30,8 @@ export function PureMessageActions({
   const { mutate } = useSWRConfig();
   const [_, copyToClipboard] = useCopyToClipboard();
 
-  if (isLoading || message.role === 'user') return null;
+  if (isLoading) return null;
+  if (message.role === 'user') return null;
 
   return (
     <TooltipProvider delayDuration={0}>
@@ -41,7 +42,18 @@ export function PureMessageActions({
               className="py-1 px-2 h-fit text-muted-foreground"
               variant="outline"
               onClick={async () => {
-                await copyToClipboard(message.content as string);
+                const textFromParts = message.parts
+                  ?.filter((part) => part.type === 'text')
+                  .map((part) => part.text)
+                  .join('\n')
+                  .trim();
+
+                if (!textFromParts) {
+                  toast.error("There's no text to copy!");
+                  return;
+                }
+
+                await copyToClipboard(textFromParts);
                 toast.success('Copied to clipboard!');
               }}
             >
