@@ -212,7 +212,7 @@ const PurePreviewMessage = ({
                 }
 
                 if (state === 'result') {
-                  const { result } = toolInvocation;
+                  const { args, result } = toolInvocation;
 
                   return (
                     <div key={toolCallId}>
@@ -239,7 +239,7 @@ const PurePreviewMessage = ({
                         <div className="flex flex-col gap-2">
                           <div className="text-sm text-muted-foreground">Searching MTG rules and documents for:</div>
                           <div className="mt-1 px-2 py-1 bg-muted rounded text-xs">
-                            <code>{result.query}</code>
+                            <code>{args.query}</code>
                           </div>
                           <Accordion type="single" collapsible>
                             {Object.entries(result as Record<string, string[]>).map(([namespace, items]) => (
@@ -267,7 +267,7 @@ const PurePreviewMessage = ({
                         <div className="flex flex-col gap-2">
                           <div className="text-sm text-muted-foreground">Searching MTG cards + rulings for:</div>
                           <div className="mt-1 px-2 py-1 bg-muted rounded text-xs">
-                            <code>{JSON.stringify(result.cardNames)}</code>
+                            <code>{JSON.stringify(args.cardNames)}</code>
                           </div>
                           {Object.entries(result as Record<string, CardWithRuling[]>).map(([cardName, cards]) => (
                             <div key={cardName} className="border rounded-lg p-3 mt-2">

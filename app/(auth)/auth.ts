@@ -75,6 +75,10 @@ export const {
     trustHost: true,
     secret: process.env.AUTH_SECRET,
     debug: process.env.NODE_ENV === 'development',
+    session: {
+      strategy: 'jwt',
+      maxAge: 7 * 24 * 60 * 60, // 7 days
+    },
     callbacks: {
       async jwt({ token, user }) {
         if (user) {

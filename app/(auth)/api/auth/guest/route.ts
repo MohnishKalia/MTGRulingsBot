@@ -10,7 +10,8 @@ export async function GET(request: Request) {
   const token = await getToken({
     req: request,
     secret: process.env.AUTH_SECRET,
-    secureCookie: !isDevelopmentEnvironment,
+    // need secure for oauth
+    secureCookie: true,
   });
 
   if (token) {

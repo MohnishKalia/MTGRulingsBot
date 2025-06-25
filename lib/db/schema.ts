@@ -56,6 +56,15 @@ export const account = pgTable('accounts', {
 
 export type Account = InferSelectModel<typeof account>;
 
+export const session = pgTable('sessions', {
+  id: uuid('id').primaryKey().notNull().defaultRandom(),
+  expires: timestamp('expires').notNull(),
+  sessionToken: varchar('sessionToken', { length: 255 }).notNull(),
+  userId: uuid('userId').notNull().references(() => user.id),
+});
+
+export type Session = InferSelectModel<typeof session>;
+
 export const chat = pgTable('Chat', {
   id: uuid('id').primaryKey().notNull().defaultRandom(),
   createdAt: timestamp('createdAt').notNull(),

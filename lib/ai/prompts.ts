@@ -41,6 +41,8 @@ export const systemPrompt = ({
 }) => {
   const requestPrompt = getRequestPromptFromHints(requestHints);
 
+  // no more model without rag for now
+
   // if (selectedChatModel === 'chat-model-small') {
   //   return `${smallPrompt}\n\n${regularPrompt}\n\n${requestPrompt}`;
   // } else {
