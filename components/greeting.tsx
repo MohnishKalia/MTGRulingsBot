@@ -7,7 +7,7 @@ import { fetcher } from '@/lib/utils';
 import { BotIcon, Layers3Icon, ScrollIcon } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 
-export const Overview = () => {
+export const Greeting = () => {
   const { data, error, isLoading } = useSWR('/api/dbStats', fetcher);
 
   return (
@@ -45,7 +45,7 @@ export const Overview = () => {
               {isLoading 
                 ? <Skeleton className="h-4 w-32"/>
                 : <p className="text-xs">
-                    {data.dbStats.oracleCardCount} cards, {data.dbStats.rulingCount} rulings since {data.dbStats.recentOracleCardDate}
+                    {data.dbStats.oracleCardCount} cards, {data.dbStats.rulingCount} rulings since {data.dbStats.recentOracleCardDate ?? new Date().toISOString().slice(0, 10)}
                   </p>
               }
               {isLoading

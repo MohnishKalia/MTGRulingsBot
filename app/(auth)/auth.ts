@@ -1,18 +1,39 @@
-import NextAuth, { type User, type Session } from 'next-auth';
+import NextAuth, { type NextAuthConfig, type DefaultSession } from 'next-auth';
+import Credentials from 'next-auth/providers/credentials';
 import DiscordProvider from 'next-auth/providers/discord';
 import GoogleProvider from 'next-auth/providers/google';
 import RedditProvider from 'next-auth/providers/reddit';
 import ResendProvider from 'next-auth/providers/resend';
-
-
-import { authConfig } from './auth.config';
-
+import { createGuestUser, } from '@/lib/db/queries';
 import NeonAdapter from "@auth/neon-adapter"
 import { Pool } from "@neondatabase/serverless"
+import { authConfig } from './auth.config';
+import type { DefaultJWT } from 'next-auth/jwt';
 
-interface ExtendedSession extends Session {
-  user: User;
+export type UserType = 'guest' | 'regular';
+
+declare module 'next-auth' {
+  interface Session extends DefaultSession {
+    user: {
+      id: string;
+      type: UserType;
+    } & DefaultSession['user'];
+  }
+
+  interface User {
+    id?: string;
+    email?: string | null;
+    type: UserType;
+  }
 }
+
+declare module 'next-auth/jwt' {
+  interface JWT extends DefaultJWT {
+    id: string;
+    type: UserType;
+  }
+}
+
 
 export const {
   handlers: { GET, POST },
@@ -20,11 +41,19 @@ export const {
   signIn,
   signOut,
 } = NextAuth(async () => {
-  const pool = new Pool({ connectionString: process.env.DATABASE_URL })
+  const pool = new Pool({ connectionString: process.env.DATABASE_URL });
   return {
     ...authConfig,
     adapter: NeonAdapter(pool),
     providers: [
+      Credentials({
+        id: 'guest',
+        credentials: {},
+        async authorize() {
+          const [guestUser] = await createGuestUser();
+          return { ...guestUser, type: 'guest' };
+        },
+      }),
       GoogleProvider({
         clientId: process.env.GOOGLE_ID,
         clientSecret: process.env.GOOGLE_SECRET,
@@ -53,24 +82,20 @@ export const {
     callbacks: {
       async jwt({ token, user }) {
         if (user) {
-          token.id = user.id;
+          token.id = user.id as string;
+          token.type = user.type;
         }
 
         return token;
       },
-      async session({
-        session,
-        token,
-      }: {
-        session: ExtendedSession;
-        token: any;
-      }) {
+      async session({ session, token }) {
         if (session.user) {
-          session.user.id = token.id as string;
+          session.user.id = token.id;
+          session.user.type = token.type;
         }
 
         return session;
       },
     },
-  };
+  } satisfies NextAuthConfig;
 });

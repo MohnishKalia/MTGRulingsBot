@@ -7,7 +7,7 @@ import { Analytics } from "@vercel/analytics/next"
 import { SpeedInsights } from "@vercel/speed-insights/next"
 
 import './globals.css';
-// import { SessionProvider } from 'next-auth/react';
+import { SessionProvider } from 'next-auth/react';
 
 export const metadata: Metadata = {
   title: 'rules.fyi - Rules Bot',
@@ -148,8 +148,7 @@ export default async function RootLayout({
           disableTransitionOnChange
         >
           <Toaster position="top-center" />
-          {children}
-          {/* <SessionProvider>{children}</SessionProvider> */}
+          <SessionProvider>{children}</SessionProvider>
         </ThemeProvider>
         <Analytics/>
         <SpeedInsights/>
