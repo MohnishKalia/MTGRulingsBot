@@ -4,7 +4,7 @@ import DiscordProvider from 'next-auth/providers/discord';
 import GoogleProvider from 'next-auth/providers/google';
 import RedditProvider from 'next-auth/providers/reddit';
 import ResendProvider from 'next-auth/providers/resend';
-import { createGuestUser, getUser } from '@/lib/db/queries';
+import { createGuestUser, } from '@/lib/db/queries';
 import NeonAdapter from "@auth/neon-adapter"
 import { Pool } from "@neondatabase/serverless"
 import { authConfig } from './auth.config';
