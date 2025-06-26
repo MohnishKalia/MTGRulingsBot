@@ -18,7 +18,8 @@ const config: Config = {
   	},
   	extend: {
   		screens: {
-  			'toast-mobile': '600px'
+  			'toast-mobile': '600px',
+			xs: '26rem', // 416px
   		},
   		borderRadius: {
   			lg: 'var(--radius)',
@@ -100,9 +101,6 @@ const config: Config = {
   			'accordion-up': 'accordion-up 0.2s ease-out'
   		}
   	},
-	screens: {
-		xs: '26rem', // 416px
-	}
   },
   plugins: [require('tailwindcss-animate'), require('@tailwindcss/typography')],
 };
