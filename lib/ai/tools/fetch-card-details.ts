@@ -19,12 +19,15 @@ export interface CardWithRuling {
 export const fetchCardDetails = tool({
     description: 'Fetch card details from Postgres DB by searching for cards via names in fuzzy similarity search',
     parameters: z.object({
-        cardNames: z.array(z.string()).describe('An array of card names to be fuzzy matched.'),
+        cardNames: z.array(z.string()).describe('An array of card names to be fuzzy matched.').min(1).max(150),
     }),
     execute: async ({ cardNames }) => {
         if (!process.env.POSTGRES_URL) {
             throw new Error('POSTGRES_URL environment variable is not defined');
         }
+
+        // NOTE: required to run CREATE EXTENSION pg_trgm; before using this tool
+
         const client = postgres(process.env.POSTGRES_URL);
         const db = drizzle(client);
         const matchesByCardName: Record<string, CardWithRuling[]> = cardNames.reduce((acc, name) => {

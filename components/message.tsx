@@ -27,6 +27,10 @@ import {
   AccordionTrigger,
 } from '@/components/ui/accordion';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { CardDetailsResult } from './card-details-result';
+import { VectorDBResult } from './vector-db-result';
+import { CardDetailsLoading } from './card-details-loading';
+import { VectorDBLoading } from './vector-db-loading';
 
 const PurePreviewMessage = ({
   chatId,
@@ -133,88 +137,9 @@ const PurePreviewMessage = ({
                             isReadonly={isReadonly}
                           />
                         )  : toolName === 'fetchVectorDB' ? (
-                          <div className="flex flex-col gap-2">
-                            <div className="text-sm text-muted-foreground">Searching MTG rules and documents for:</div>
-                            <div className="mt-1 px-2 py-1 bg-muted rounded text-xs">
-                              <code>{args.query}</code>
-                            </div>
-                            <Accordion type="single" collapsible>
-                              {Object.entries(result as Record<string, string[]>).map(([namespace, items]) => (
-                                <AccordionItem key={namespace} value={namespace}>
-                                  <AccordionTrigger className="text-sm">
-                                    {namespace.toUpperCase()} ({items.length} items)
-                                  </AccordionTrigger>
-                                  <AccordionContent>
-                                    <ol className="list-decimal list-inside space-y-2">
-                                      {items.map((item, i) => (
-                                      // biome-ignore lint/suspicious/noArrayIndexKey: last resort for string[]
-                                      <li key={i} className="text-sm p-3">
-                                        <ScrollArea className="flex max-h-40 flex-col overflow-y-auto rounded-md border p-4 leading-relaxed text-muted-foreground">
-                                          {item}
-                                        </ScrollArea>
-                                      </li>
-                                      ))}
-                                    </ol>
-                                  </AccordionContent>
-                                </AccordionItem>
-                              ))}
-                            </Accordion>
-                          </div>
+                          <VectorDBResult result={result} args={args} />
                         ) : toolName === 'fetchCardDetails' ? (
-                            <div className="flex flex-col gap-2">
-                            <div className="text-sm text-muted-foreground">Searching MTG cards + rulings for:</div>
-                            <div className="mt-1 px-2 py-1 bg-muted rounded text-xs">
-                              <code>{JSON.stringify(args.cardNames)}</code>
-                            </div>
-                            {Object.entries(result as Record<string, CardWithRuling[]>).map(([cardName, cards]) => (
-                              <div key={cardName} className="border rounded-lg p-3 mt-2">
-                              {cards.map((card, i) => (
-                                // biome-ignore lint/suspicious/noArrayIndexKey: TODO: could pull thru id, but could confuse LLM downstream
-                                <div key={i}>
-                                <div className="text-sm">
-                                  <Link href={card.scryfallUri} target="_blank" rel="noopener noreferrer" className="font-medium underline underline-offset-2">
-                                  {card.name}
-                                  </Link>{' '}
-                                  {card.manaCost && <span className="mr-2">{card.manaCost}</span>}
-                                </div>
-                                {card.typeLine && <div className="text-sm text-muted-foreground">{card.typeLine}</div>}
-                                {card.oracleText && <div className="mt-2 text-sm whitespace-pre-wrap">{card.oracleText}</div>}
-                                {card.power && card.toughness && (
-                                  <div className="mt-2 text-sm">
-                                  <span className="text-muted-foreground">P/T: </span>
-                                  {card.power}/{card.toughness}
-                                  </div>
-                                )}
-                                {card.rulings && card.rulings.length > 0 && ( 
-                                  <>
-                                    <hr className="my-3 border-muted" />
-                                    <Accordion type="single" collapsible className="mt-3">
-                                      <AccordionItem value="rulings">
-                                        <AccordionTrigger className="text-sm font-medium">
-                                          Rulings ({card.rulings.length})
-                                        </AccordionTrigger>
-                                        <AccordionContent>
-                                            <ul className="list-disc list-outside space-y-1 text-sm ml-5">
-                                            {card.rulings
-                                              .sort((a: any, b: any) => a.published_at.localeCompare(b.published_at))
-                                              .map((ruling: any, i: number) => (
-                                              // biome-ignore lint/suspicious/noArrayIndexKey: last resort for string[]
-                                              <li key={i}>
-                                                <span className="ml-1">{ruling.comment}</span>
-                                                <div className="text-muted-foreground text-xs mt-1">({ruling.published_at})</div>
-                                              </li>
-                                            ))}
-                                            </ul>
-                                        </AccordionContent>
-                                      </AccordionItem>
-                                    </Accordion>
-                                  </>
-                                )}
-                                </div>
-                              ))}
-                              </div>
-                            ))}
-                            </div>
+                          <CardDetailsResult result={result} args={args} />
                         ) : (
                           <pre>{JSON.stringify(result, null, 2)}</pre>
                         )}
@@ -245,19 +170,9 @@ const PurePreviewMessage = ({
                           isReadonly={isReadonly}
                         />
                       ) : toolName === 'fetchVectorDB' ? (
-                        <div className="flex flex-col gap-2">
-                          <div className="text-sm text-muted-foreground">Searching MTG rules and documents for:</div>
-                          <div className="mt-1 px-2 py-1 bg-muted rounded text-xs">
-                            <code>{args.query}</code>
-                          </div>
-                        </div>
+                        <VectorDBLoading args={args} />
                       ) : toolName === 'fetchCardDetails' ? (
-                        <div className="flex flex-col gap-2">
-                          <div className="text-sm text-muted-foreground">Searching MTG cards + rulings for:</div>
-                          <div className="mt-1 px-2 py-1 bg-muted rounded text-xs">
-                            <code>{JSON.stringify(args.cardNames)}</code>
-                          </div>
-                        </div>
+                        <CardDetailsLoading args={args} />
                       ) : null}
                     </div>
                   );

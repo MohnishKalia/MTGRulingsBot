@@ -103,18 +103,18 @@ with psycopg2.connect(DB_URL) as conn, conn.cursor() as cur:
 
     # Create temporary tables
     cur.execute("""
-        CREATE TABLE oracle_cards_new (
-            object TEXT,
-            oracle_id UUID PRIMARY KEY,
-            name TEXT,
-            released_at DATE,
-            scryfall_uri TEXT,
-            layout TEXT,
-            image_uris JSONB,
+        CREATE TABLE oracle_card_new (
+            id UUID PRIMARY KEY,
+            oracle_id UUID UNIQUE NOT NULL,
+            name TEXT NOT NULL,
+            released_at DATE NOT NULL,
+            scryfall_uri TEXT NOT NULL,
+            layout TEXT NOT NULL,
+            image_uris JSON,
             mana_cost TEXT,
-            cmc REAL,
+            cmc DOUBLE PRECISION,
             type_line TEXT,
-            card_faces JSONB,
+            card_faces JSON,
             oracle_text TEXT,
             power TEXT,
             toughness TEXT,
@@ -124,21 +124,22 @@ with psycopg2.connect(DB_URL) as conn, conn.cursor() as cur:
             edhrec_rank INTEGER
         );
     """)
-    logging.info("Created oracle_cards_new table")
+    logging.info("Created oracle_card_new table")
 
     cur.execute("""
-        CREATE TABLE rulings_new (
-            object TEXT,
+        CREATE TABLE ruling_new (
+            id UUID PRIMARY KEY,
             oracle_id UUID,
-            source TEXT,
-            published_at DATE,
-            comment TEXT
+            source TEXT NOT NULL,
+            published_at DATE NOT NULL,
+            comment TEXT NOT NULL
         );
     """)
-    logging.info("Created rulings_new table")
+    logging.info("Created ruling_new table")
 
     def card_to_db_dict(card):
         d = card.model_dump(mode='json')
+        d['id'] = str(uuid.uuid4())
         # Convert dict fields to JSON strings for JSONB columns
         if d.get('image_uris') is not None:
             d['image_uris'] = json.dumps(d['image_uris'])
@@ -148,46 +149,47 @@ with psycopg2.connect(DB_URL) as conn, conn.cursor() as cur:
 
     def ruling_to_db_dict(ruling):
         d = ruling.model_dump(mode='json')
+        d['id'] = str(uuid.uuid4())
         return d
 
     # Insert data into temporary tables
     execute_batch(cur, """
-        INSERT INTO oracle_cards_new (
-            object, oracle_id, name, released_at, scryfall_uri, layout, image_uris,
+        INSERT INTO oracle_card_new (
+            id, oracle_id, name, released_at, scryfall_uri, layout, image_uris,
             mana_cost, cmc, type_line, card_faces, oracle_text, power, toughness,
             colors, keywords, games, edhrec_rank
         ) VALUES (
-            %(object)s, %(oracle_id)s, %(name)s, %(released_at)s, %(scryfall_uri)s,
+            %(id)s, %(oracle_id)s, %(name)s, %(released_at)s, %(scryfall_uri)s,
             %(layout)s, %(image_uris)s, %(mana_cost)s, %(cmc)s, %(type_line)s,
             %(card_faces)s, %(oracle_text)s, %(power)s, %(toughness)s, %(colors)s,
             %(keywords)s, %(games)s, %(edhrec_rank)s
         );
     """, [card_to_db_dict(c) for c in cards])
-    logging.info("Inserted data into oracle_cards_new")
+    logging.info("Inserted data into oracle_card_new")
 
     execute_batch(cur, """
-        INSERT INTO rulings_new (
-            object, oracle_id, source, published_at, comment
+        INSERT INTO ruling_new (
+            id, oracle_id, source, published_at, comment
         ) VALUES (
-            %(object)s, %(oracle_id)s, %(source)s, %(published_at)s, %(comment)s
+            %(id)s, %(oracle_id)s, %(source)s, %(published_at)s, %(comment)s
         );
     """, [ruling_to_db_dict(r) for r in rulings])
-    logging.info("Inserted data into rulings_new")
+    logging.info("Inserted data into ruling_new")
 
     # Swap tables
-    cur.execute("DROP TABLE IF EXISTS rulings, oracle_cards CASCADE;")
+    cur.execute("DROP TABLE IF EXISTS ruling, oracle_card CASCADE;")
     logging.info("Dropped old tables")
 
-    cur.execute("ALTER TABLE oracle_cards_new RENAME TO oracle_cards;")
-    logging.info("Renamed oracle_cards_new to oracle_cards")
+    cur.execute("ALTER TABLE oracle_card_new RENAME TO oracle_card;")
+    logging.info("Renamed oracle_card_new to oracle_card")
 
-    cur.execute("ALTER TABLE rulings_new RENAME TO rulings;")
-    logging.info("Renamed rulings_new to rulings")
+    cur.execute("ALTER TABLE ruling_new RENAME TO ruling;")
+    logging.info("Renamed ruling_new to ruling")
 
     cur.execute("""
-        ALTER TABLE rulings
-        ADD CONSTRAINT rulings_oracle_id_fkey
-        FOREIGN KEY (oracle_id) REFERENCES oracle_cards(oracle_id);
+        ALTER TABLE ruling
+        ADD CONSTRAINT ruling_oracle_id_oracle_card_oracle_id_fk
+        FOREIGN KEY (oracle_id) REFERENCES oracle_card(oracle_id);
     """)
     logging.info("Recreated foreign key constraint")
 
