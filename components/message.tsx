@@ -18,15 +18,6 @@ import { Tooltip, TooltipContent, TooltipTrigger } from './ui/tooltip';
 import { MessageEditor } from './message-editor';
 import { DocumentPreview } from './document-preview';
 import { MessageReasoning } from './message-reasoning';
-import type { CardWithRuling } from '@/lib/ai/tools/fetch-card-details';
-import Link from 'next/link';
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from '@/components/ui/accordion';
-import { ScrollArea } from '@/components/ui/scroll-area';
 import { CardDetailsResult } from './card-details-result';
 import { VectorDBResult } from './vector-db-result';
 import { CardDetailsLoading } from './card-details-loading';
