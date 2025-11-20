@@ -38,4 +38,4 @@ The tool supports [Scryfall's query syntax](https://scryfall.com/docs/syntax), i
 - **Format legality**: `f:commander`, `f:standard`
 - **Special filters**: `is:commander`, `is:permanent`
 
-The bot will display the total count of matching cards and show a sample of the results, not the complete list (limited to 1000 cards maximum).
+The bot will display the total count of matching cards and show a sample of the results, not the complete list (limited to 200 cards maximum). Results are sorted by EDHREC popularity (most popular cards first).

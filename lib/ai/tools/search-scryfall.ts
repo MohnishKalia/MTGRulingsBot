@@ -12,15 +12,15 @@ export interface ScryfallCardResult {
 }
 
 export const searchScryfall = tool({
-    description: 'Search for MTG cards using Scryfall query syntax. Returns card count and card details. Useful for filtering cards by attributes like color, type, power/toughness, sets, etc.',
+    description: 'Search for MTG cards using Scryfall query syntax. Returns card count and card details sorted by EDHREC popularity. Useful for filtering cards by attributes like color, type, power/toughness, sets, etc.',
     parameters: z.object({
         query: z.string().describe('Scryfall search query using Scryfall syntax (e.g., "c:red pow>5", "t:creature o:flying", "is:commander")'),
-        maxCards: z.number().max(999).optional().default(1000).describe('Maximum number of cards to fetch (default 1000, max 999)'),
+        maxCards: z.number().max(200).optional().default(200).describe('Maximum number of cards to fetch (default 200, max 200)'),
     }),
-    execute: async ({ query, maxCards = 1000 }) => {
+    execute: async ({ query, maxCards = 200 }) => {
         try {
             // Enforce max limit to prevent abuse
-            const effectiveMaxCards = Math.min(maxCards, 999);
+            const effectiveMaxCards = Math.min(maxCards, 200);
             const cards: ScryfallCardResult[] = [];
             let page = 1;
             let hasMore = true;
@@ -28,7 +28,7 @@ export const searchScryfall = tool({
 
             // Fetch pages until we have enough cards or no more pages
             while (hasMore && cards.length < effectiveMaxCards) {
-                const url = `https://api.scryfall.com/cards/search?q=${encodeURIComponent(query)}&page=${page}`;
+                const url = `https://api.scryfall.com/cards/search?q=${encodeURIComponent(query)}&order=edhrec&dir=desc&page=${page}`;
                 const response = await fetch(url);
 
                 if (!response.ok) {
