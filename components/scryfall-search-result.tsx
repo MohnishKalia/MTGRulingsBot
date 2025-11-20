@@ -30,7 +30,7 @@ export function ScryfallSearchResult({
       <Accordion type="single" collapsible>
         <AccordionItem value="scryfall-results">
           <AccordionTrigger className="text-sm">
-            Found {totalCards} total cards{fetchedCards < totalCards ? `, showing ${fetchedCards}` : ''}
+            Found {totalCards} total cards{fetchedCards < totalCards ? `, showing top ${fetchedCards}` : ''}
           </AccordionTrigger>
           <AccordionContent>
             <ScrollArea className="h-96">

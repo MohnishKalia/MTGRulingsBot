@@ -14,8 +14,8 @@ export interface ScryfallCardResult {
 export const searchScryfall = tool({
     description: 'Search for MTG cards using Scryfall query syntax. Returns card count and card details sorted by EDHREC popularity. Useful for filtering cards by attributes like color, type, power/toughness, sets, etc.',
     parameters: z.object({
-        query: z.string().describe('Scryfall search query using Scryfall syntax (e.g., "c:red pow>5", "t:creature o:flying", "is:commander")'),
-        maxCards: z.number().max(200).optional().default(200).describe('Maximum number of cards to fetch (default 200, max 200)'),
+        query: z.string().describe('Scryfall search query using Scryfall syntax (e.g., "c:rg pow>5", "is:commander (o:deathtouch or o:lifelink) id=gwr", "t:creature o:flying -o:create")'),
+        maxCards: z.number().max(200).optional().default(50).describe('Maximum number of cards to fetch (default 50, max 200), aim around 50 for best performance'),
     }),
     execute: async ({ query, maxCards = 200 }) => {
         try {
@@ -28,7 +28,7 @@ export const searchScryfall = tool({
 
             // Fetch pages until we have enough cards or no more pages
             while (hasMore && cards.length < effectiveMaxCards) {
-                const url = `https://api.scryfall.com/cards/search?q=${encodeURIComponent(query)}&order=edhrec&dir=desc&page=${page}`;
+                const url = `https://api.scryfall.com/cards/search?q=${encodeURIComponent(query)}&order=edhrec&dir=asc&page=${page}`;
                 const response = await fetch(url);
 
                 if (!response.ok) {
@@ -49,19 +49,34 @@ export const searchScryfall = tool({
                 totalCards = data.total_cards || 0;
                 hasMore = data.has_more || false;
 
-                // Map Scryfall cards to our format
+                // Map Scryfall cards to our format, handling double-faced cards
                 const newCards = (data.data || [])
                     .slice(0, effectiveMaxCards - cards.length)
-                    .map((card: any) => ({
-                        scryfallUri: card.scryfall_uri || '',
-                        name: card.name || '',
-                        manaCost: card.mana_cost || null,
-                        typeLine: card.type_line || null,
-                        oracleText: card.oracle_text || null,
-                        power: card.power || null,
-                        toughness: card.toughness || null,
-                    }));
-                
+                    .map((card: any) => {
+                        // If card_faces exists, combine relevant fields
+                        if (Array.isArray(card.card_faces) && card.card_faces.length > 0) {
+                            const faces = card.card_faces;
+                            return {
+                                scryfallUri: card.scryfall_uri || '',
+                                name: card.name || '',
+                                manaCost: faces.map((f: any) => f.mana_cost).filter(Boolean).join(' // ') || card.mana_cost || null,
+                                typeLine: faces.map((f: any) => f.type_line).filter(Boolean).join(' // ') || card.type_line || null,
+                                oracleText: faces.map((f: any) => f.oracle_text).filter(Boolean).join(' // ') || card.oracle_text || null,
+                                power: faces.map((f: any) => f.power).filter(Boolean).join(' // ') || card.power || null,
+                                toughness: faces.map((f: any) => f.toughness).filter(Boolean).join(' // ') || card.toughness || null,
+                            };
+                        } else {
+                            return {
+                                scryfallUri: card.scryfall_uri || '',
+                                name: card.name || '',
+                                manaCost: card.mana_cost || null,
+                                typeLine: card.type_line || null,
+                                oracleText: card.oracle_text || null,
+                                power: card.power || null,
+                                toughness: card.toughness || null,
+                            };
+                        }
+                    });
                 cards.push(...newCards);
 
                 page++;
