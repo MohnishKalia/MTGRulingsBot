@@ -15,17 +15,19 @@ export const searchScryfall = tool({
     description: 'Search for MTG cards using Scryfall query syntax. Returns card count and card details. Useful for filtering cards by attributes like color, type, power/toughness, sets, etc.',
     parameters: z.object({
         query: z.string().describe('Scryfall search query using Scryfall syntax (e.g., "c:red pow>5", "t:creature o:flying", "is:commander")'),
-        maxCards: z.number().optional().default(1000).describe('Maximum number of cards to fetch (default 1000)'),
+        maxCards: z.number().max(999).optional().default(1000).describe('Maximum number of cards to fetch (default 1000, max 999)'),
     }),
     execute: async ({ query, maxCards = 1000 }) => {
         try {
+            // Enforce max limit to prevent abuse
+            const effectiveMaxCards = Math.min(maxCards, 999);
             const cards: ScryfallCardResult[] = [];
             let page = 1;
             let hasMore = true;
             let totalCards = 0;
 
             // Fetch pages until we have enough cards or no more pages
-            while (hasMore && cards.length < maxCards) {
+            while (hasMore && cards.length < effectiveMaxCards) {
                 const url = `https://api.scryfall.com/cards/search?q=${encodeURIComponent(query)}&page=${page}`;
                 const response = await fetch(url);
 
@@ -48,10 +50,9 @@ export const searchScryfall = tool({
                 hasMore = data.has_more || false;
 
                 // Map Scryfall cards to our format
-                for (const card of data.data || []) {
-                    if (cards.length >= maxCards) break;
-
-                    cards.push({
+                const newCards = (data.data || [])
+                    .slice(0, effectiveMaxCards - cards.length)
+                    .map((card: any) => ({
                         scryfallUri: card.scryfall_uri || '',
                         name: card.name || '',
                         manaCost: card.mana_cost || null,
@@ -59,8 +60,9 @@ export const searchScryfall = tool({
                         oracleText: card.oracle_text || null,
                         power: card.power || null,
                         toughness: card.toughness || null,
-                    });
-                }
+                    }));
+                
+                cards.push(...newCards);
 
                 page++;
 

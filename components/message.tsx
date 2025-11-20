@@ -22,6 +22,8 @@ import { CardDetailsResult } from './card-details-result';
 import { VectorDBResult } from './vector-db-result';
 import { CardDetailsLoading } from './card-details-loading';
 import { VectorDBLoading } from './vector-db-loading';
+import { ScryfallSearchResult } from './scryfall-search-result';
+import { ScryfallSearchLoading } from './scryfall-search-loading';
 
 const PurePreviewMessage = ({
   chatId,
@@ -131,6 +133,8 @@ const PurePreviewMessage = ({
                           <VectorDBResult result={result} args={args} />
                         ) : toolName === 'fetchCardDetails' ? (
                           <CardDetailsResult result={result} args={args} />
+                        ) : toolName === 'searchScryfall' ? (
+                          <ScryfallSearchResult result={result} args={args} />
                         ) : (
                           <pre>{JSON.stringify(result, null, 2)}</pre>
                         )}
@@ -164,6 +168,8 @@ const PurePreviewMessage = ({
                         <VectorDBLoading args={args} />
                       ) : toolName === 'fetchCardDetails' ? (
                         <CardDetailsLoading args={args} />
+                      ) : toolName === 'searchScryfall' ? (
+                        <ScryfallSearchLoading args={args} />
                       ) : null}
                     </div>
                   );
