@@ -18,19 +18,12 @@ import { Tooltip, TooltipContent, TooltipTrigger } from './ui/tooltip';
 import { MessageEditor } from './message-editor';
 import { DocumentPreview } from './document-preview';
 import { MessageReasoning } from './message-reasoning';
-import type { CardWithRuling } from '@/lib/ai/tools/fetch-card-details';
-import Link from 'next/link';
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from '@/components/ui/accordion';
-import { ScrollArea } from '@/components/ui/scroll-area';
 import { CardDetailsResult } from './card-details-result';
 import { VectorDBResult } from './vector-db-result';
 import { CardDetailsLoading } from './card-details-loading';
 import { VectorDBLoading } from './vector-db-loading';
+import { ScryfallSearchResult } from './scryfall-search-result';
+import { ScryfallSearchLoading } from './scryfall-search-loading';
 
 const PurePreviewMessage = ({
   chatId,
@@ -140,6 +133,8 @@ const PurePreviewMessage = ({
                           <VectorDBResult result={result} args={args} />
                         ) : toolName === 'fetchCardDetails' ? (
                           <CardDetailsResult result={result} args={args} />
+                        ) : toolName === 'searchScryfall' ? (
+                          <ScryfallSearchResult result={result} args={args} />
                         ) : (
                           <pre>{JSON.stringify(result, null, 2)}</pre>
                         )}
@@ -173,6 +168,8 @@ const PurePreviewMessage = ({
                         <VectorDBLoading args={args} />
                       ) : toolName === 'fetchCardDetails' ? (
                         <CardDetailsLoading args={args} />
+                      ) : toolName === 'searchScryfall' ? (
+                        <ScryfallSearchLoading args={args} />
                       ) : null}
                     </div>
                   );

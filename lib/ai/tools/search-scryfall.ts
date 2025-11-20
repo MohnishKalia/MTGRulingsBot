@@ -1,0 +1,103 @@
+import { tool } from 'ai';
+import { z } from 'zod';
+
+export interface ScryfallCardResult {
+    scryfallUri: string;
+    name: string;
+    manaCost: string | null;
+    typeLine: string | null;
+    oracleText: string | null;
+    power: string | null;
+    toughness: string | null;
+}
+
+export const searchScryfall = tool({
+    description: 'Search for MTG cards using Scryfall query syntax. Returns card count and card details sorted by EDHREC popularity. Useful for filtering cards by attributes like color, type, power/toughness, sets, etc.',
+    parameters: z.object({
+        query: z.string().describe('Scryfall search query using Scryfall syntax (e.g., "c:rg pow>5", "is:commander (o:deathtouch or o:lifelink) id=gwr", "t:creature o:flying -o:create")'),
+        maxCards: z.number().max(200).optional().default(50).describe('Maximum number of cards to fetch (default 50, max 200), aim around 50 for best performance'),
+    }),
+    execute: async ({ query, maxCards = 200 }) => {
+        try {
+            // Enforce max limit to prevent abuse
+            const effectiveMaxCards = Math.min(maxCards, 200);
+            const cards: ScryfallCardResult[] = [];
+            let page = 1;
+            let hasMore = true;
+            let totalCards = 0;
+
+            // Fetch pages until we have enough cards or no more pages
+            while (hasMore && cards.length < effectiveMaxCards) {
+                const url = `https://api.scryfall.com/cards/search?q=${encodeURIComponent(query)}&order=edhrec&dir=asc&page=${page}`;
+                const response = await fetch(url);
+
+                if (!response.ok) {
+                    if (response.status === 404) {
+                        // No results found
+                        return {
+                            totalCards: 0,
+                            fetchedCards: 0,
+                            cards: [],
+                            query,
+                            message: 'No cards found matching the query.',
+                        };
+                    }
+                    throw new Error(`Scryfall API error: ${response.status} ${response.statusText}`);
+                }
+
+                const data = await response.json();
+                totalCards = data.total_cards || 0;
+                hasMore = data.has_more || false;
+
+                // Map Scryfall cards to our format, handling double-faced cards
+                const newCards = (data.data || [])
+                    .slice(0, effectiveMaxCards - cards.length)
+                    .map((card: any) => {
+                        // If card_faces exists, combine relevant fields
+                        if (Array.isArray(card.card_faces) && card.card_faces.length > 0) {
+                            const faces = card.card_faces;
+                            return {
+                                scryfallUri: card.scryfall_uri || '',
+                                name: card.name || '',
+                                manaCost: faces.map((f: any) => f.mana_cost).filter(Boolean).join(' // ') || card.mana_cost || null,
+                                typeLine: faces.map((f: any) => f.type_line).filter(Boolean).join(' // ') || card.type_line || null,
+                                oracleText: faces.map((f: any) => f.oracle_text).filter(Boolean).join(' // ') || card.oracle_text || null,
+                                power: faces.map((f: any) => f.power).filter(Boolean).join(' // ') || card.power || null,
+                                toughness: faces.map((f: any) => f.toughness).filter(Boolean).join(' // ') || card.toughness || null,
+                            };
+                        } else {
+                            return {
+                                scryfallUri: card.scryfall_uri || '',
+                                name: card.name || '',
+                                manaCost: card.mana_cost || null,
+                                typeLine: card.type_line || null,
+                                oracleText: card.oracle_text || null,
+                                power: card.power || null,
+                                toughness: card.toughness || null,
+                            };
+                        }
+                    });
+                cards.push(...newCards);
+
+                page++;
+
+                // Add delay to respect Scryfall API rate limits (50-100ms recommended)
+                await new Promise(resolve => setTimeout(resolve, 100));
+            }
+
+            return {
+                totalCards,
+                fetchedCards: cards.length,
+                cards,
+                query,
+                message: `Found ${totalCards} total cards. Displaying ${cards.length} cards.`,
+            };
+        } catch (error) {
+            return {
+                error: 'Failed to search Scryfall',
+                details: error instanceof Error ? error.message : String(error),
+                query,
+            };
+        }
+    },
+});

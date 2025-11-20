@@ -36,6 +36,53 @@ const components: Partial<Components> = {
       </span>
     );
   },
+  table: ({ node, children, ...props }) => {
+    return (
+      <div
+        className="my-4 overflow-x-auto border-2 border-border rounded-2xl"
+        {...props}
+      >
+        <table className="w-full text-sm border-0 rounded-lg overflow-hidden">
+          {children}
+        </table>
+      </div>
+    );
+  },
+  thead: ({ node, children, ...props }) => {
+    return (
+      <thead className="bg-secondary text-left" {...props}>
+        {children}
+      </thead>
+    );
+  },
+  tbody: ({ node, children, ...props }) => {
+    return (
+      <tbody className="divide-y divide-border" {...props}>
+        {children}
+      </tbody>
+    );
+  },
+  tr: ({ node, children, ...props }) => {
+    return (
+      <tr className="align-top" {...props}>
+        {children}
+      </tr>
+    );
+  },
+  th: ({ node, children, ...props }) => {
+    return (
+      <th className="px-4 py-3 text-left font-semibold text-sm text-foreground border-b border-border border-r last:border-r-0" {...props}>
+        {children}
+      </th>
+    );
+  },
+  td: ({ node, children, ...props }) => {
+    return (
+      <td className="px-4 py-3 align-top text-sm text-foreground border-b border-border border-r last:border-r-0" {...props}>
+        {children}
+      </td>
+    );
+  },
   a: ({ node, children, ...props }) => {
     return (
       // @ts-expect-error
