@@ -82,7 +82,7 @@ Answer user questions with:
 
 export const fetchToolsPrompt = `
 ## Tools
-This guide describes two MTG data fetching tools: \`fetchCardDetails\` and \`fetchVectorDB\`
+This guide describes three MTG data fetching tools: \`fetchCardDetails\`, \`fetchVectorDB\`, and \`searchScryfall\`
 
 YOU MUST ALWAYS use the fetchVectorDB("...") tool at least once in responding to user queries.
 
@@ -97,6 +97,19 @@ YOU MUST ALWAYS use the fetchVectorDB("...") tool at least once in responding to
 **When NOT to use fetchCardDetails:**
 - Avoid when a broader similarity-based search is needed.
 - Avoid when the user query appears to be ENTIRELY on the rules of the game, rather than specific cards
+- Avoid when searching for cards by attributes/filters - use searchScryfall instead
+
+**When to use searchScryfall:**
+- Use when the user wants to find cards matching specific criteria or attributes
+  - ex. \`show me all red creatures with power greater than 5\` -> searchScryfall({query: "c:red t:creature pow>5"})
+  - ex. \`find all commanders with blue in their color identity\` -> searchScryfall({query: "is:commander id:u"})
+- Use when the user wants to filter or search cards by properties like color, type, power/toughness, rarity, set, etc.
+- Use when the user asks for "all cards" or "cards that" match certain conditions
+- When displaying results, show the count and a sample of cards, not all results
+
+**When NOT to use searchScryfall:**
+- Avoid when the user mentions specific card names (use fetchCardDetails instead for fuzzy matching)
+- Avoid when searching for rules or rulings (use fetchVectorDB instead)
 
 **When to use fetchVectorDB: (use ALL of the time)**
 - Use for looking up keywords (usually capitalized words) or MTG specific terminology for a card's text or user input
