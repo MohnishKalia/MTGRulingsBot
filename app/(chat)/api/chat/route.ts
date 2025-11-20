@@ -21,6 +21,7 @@ import {
 import { generateTitleFromUserMessage } from '../../actions';
 import { fetchCardDetails } from '@/lib/ai/tools/fetch-card-details';
 import { fetchVectorDB } from '@/lib/ai/tools/fetch-vector-db';
+import { searchScryfall } from '@/lib/ai/tools/search-scryfall';
 import { isProductionEnvironment } from '@/lib/constants';
 import { NextResponse } from 'next/server';
 import { myProvider } from '@/lib/ai/providers';
@@ -99,12 +100,14 @@ export async function POST(request: Request) {
               : [
                   'fetchCardDetails',
                   'fetchVectorDB',
+                  'searchScryfall',
                 ],
           experimental_transform: smoothStream({ chunking: 'word' }),
           experimental_generateMessageId: generateUUID,
           tools: {
             fetchCardDetails,
             fetchVectorDB,
+            searchScryfall,
           },
           // toolChoice: 'required',
           onFinish: async ({ response, reasoning }) => {
