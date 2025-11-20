@@ -84,6 +84,8 @@ export const fetchToolsPrompt = `
 ## Tools
 This guide describes three MTG data fetching tools: \`fetchCardDetails\`, \`fetchVectorDB\`, and \`searchScryfall\`
 
+**IMPORTANT: These tools are NOT mutually exclusive. You can and should use multiple tools in a single response when appropriate.**
+
 YOU MUST ALWAYS use the fetchVectorDB("...") tool at least once in responding to user queries.
 
 **When to use fetchCardDetails: (use most of the time)** 
@@ -99,7 +101,7 @@ YOU MUST ALWAYS use the fetchVectorDB("...") tool at least once in responding to
 - Avoid when the user query appears to be ENTIRELY on the rules of the game, rather than specific cards
 - Avoid when searching for cards by attributes/filters - use searchScryfall instead
 
-**When to use searchScryfall:**
+**When to use searchScryfall: (use most of the time)**
 - Use when the user wants to find cards matching specific criteria or attributes
   - ex. \`show me all red creatures with power greater than 5\` -> searchScryfall({query: "c:red t:creature pow>5"})
   - ex. \`find all commanders with blue in their color identity\` -> searchScryfall({query: "is:commander id:u"})
@@ -110,7 +112,7 @@ YOU MUST ALWAYS use the fetchVectorDB("...") tool at least once in responding to
 - Avoid when the user mentions specific card names (use fetchCardDetails instead for fuzzy matching)
 - Avoid when searching for rules or rulings (use fetchVectorDB instead)
 
-**When to use fetchVectorDB: (use most of the time)**
+**When to use fetchVectorDB: (use ALL of the time)**
 - Use for looking up keywords (usually capitalized words) or MTG specific terminology for a card's text or user input
   - ex. \`for an enchantment with Shroud, would a spell be able to target it? what about an an ability?\` -> fetchVectorDB("<insert full user query here>") since Shroud, spell, ability are game terms
 - Use if you don't understand a rule of the game, or aren't sure if your information is up to date
