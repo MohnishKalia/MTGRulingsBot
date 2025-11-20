@@ -4,7 +4,7 @@ import type { Session } from 'next-auth';
 
 function isUserAuthenticated(session: Session | null):
   session is Session & { user: { email?: string; name?: string; id?: string } } {
-  return !!(session && session.user &&
+  return !!(session?.user &&
     (session.user.email || session.user.name || session.user.id));
 }
 
