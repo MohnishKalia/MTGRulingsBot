@@ -92,8 +92,8 @@ export async function POST(request: Request) {
           model: myProvider.languageModel(selectedChatModel),
           system: systemPrompt({ selectedChatModel }),
           messages,
-          temperature: selectedChatModel === 'chat-model-reasoning' ? 1 : 0.7,
-          maxSteps: 7,
+          temperature: ['chat-model-reasoning'].includes(selectedChatModel) ? 1 : 0.7,
+          maxSteps: 9,
           experimental_activeTools:
             selectedChatModel === 'chat-model-small'
               ? []

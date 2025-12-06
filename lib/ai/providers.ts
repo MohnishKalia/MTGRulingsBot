@@ -22,11 +22,11 @@ export const myProvider = isTestEnvironment
     })
   : customProvider({
       languageModels: {
-        'chat-model-small': openai('gpt-5-nano'),
+        'chat-model-small': openai('gpt-4.1-nano'),
         'chat-model-large': openai('gpt-4.1-mini'),
         'chat-model-reasoning': openai('gpt-5-mini'),
-        'title-model': openai('gpt-5-nano'),
-        'artifact-model': openai('gpt-5-nano'),
+        'title-model': openai('gpt-4.1-nano'),
+        'artifact-model': openai('gpt-4.1-nano'),
       },
       // imageModels: {
       //   'small-model': openai.image('dall-e-2'),
